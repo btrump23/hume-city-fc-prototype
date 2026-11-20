@@ -575,6 +575,16 @@ a.built-by{text-decoration:none;color:inherit;cursor:pointer}a.built-by:hover .b
   margin-top: auto;
 }
 
+
+/* Program picker */
+.program-picker { background: var(--paper); border-bottom: 1px solid var(--line); padding: 14px 0; }
+.program-picker fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+.program-picker legend { float: left; margin-right: 6px; font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); font-size: 15px; }
+.program-picker label { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 2px solid var(--red); border-radius: 999px; background: var(--white); color: var(--red-dark); font-weight: 700; cursor: pointer; transition: background .15s, color .15s; }
+.program-picker label:hover { background: var(--red); color: var(--white); }
+.program-picker input[type=radio] { accent-color: var(--red); width: 18px; height: 18px; margin: 0; cursor: pointer; }
+.program-picker input[type=radio]:checked + span { text-decoration: underline; }
+.program-picker label:has(input:checked) { background: var(--red); color: var(--white); }
   </style>
 </head>
 <body>
@@ -592,6 +602,23 @@ a.built-by{text-decoration:none;color:inherit;cursor:pointer}a.built-by:hover .b
       <span class="badge badge-warn">Draft — not live</span>
     </div>
   </header>
+  <nav class="program-picker" aria-label="Choose a program">
+    <div class="wrap">
+      <fieldset>
+        <legend>Go to:</legend>
+        <label><input type="radio" name="program" value="girls/"><span>Girls Program</span></label>
+        <label><input type="radio" name="program" value="coach/"><span>Coaches Dashboard</span></label>
+        <label><input type="radio" name="program" value="boys/"><span>Boys Program</span></label>
+      </fieldset>
+    </div>
+  </nav>
+  <script>
+  document.querySelectorAll('.program-picker input[name=program]').forEach(function(r){
+    r.checked=false;
+    r.addEventListener('change',function(){ if(r.checked) window.location.href=r.value; });
+  });
+  window.addEventListener('pageshow',function(){document.querySelectorAll('.program-picker input[name=program]').forEach(function(r){r.checked=false;});});
+  </script>
 
   <main id="main">
     <section class="hero hub-hero">
