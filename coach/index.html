@@ -1035,6 +1035,25 @@ body.coach .built-by--header {
 .plan-review-card { padding:0.9rem 1rem; border-top:4px solid var(--red,#C8102E); }
 .plan-review-overall { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-top:0.7rem; font-weight:700; }
 .plan-review-overall input { flex:1 1 16rem; font-weight:400; }
+
+/* Built-by badge in a black box (matches homepage footer) */
+body.coach .built-by {
+  display: inline-flex;
+  align-items: center;
+  background: #000;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-left: 4px solid #FF1493;
+  border-radius: 10px;
+  padding: 0.6rem 1rem 0.6rem 0.85rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  text-decoration: none;
+  transition: border-color .15s, transform .15s;
+}
+body.coach .built-by--header { max-width: none; }
+body.coach .built-by .built-by-name { font-size: 1rem; color: #fff; white-space: nowrap; }
+body.coach .built-by .built-by-label { color: #FF8CC6; opacity: 1; }
+body.coach .built-by:hover { border-color: #FF1493; transform: translateY(-1px); }
   </style>
 </head>
 <body class="coach">
