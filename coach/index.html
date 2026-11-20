@@ -1073,7 +1073,6 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
       { id: "coach-ozzi", name: "Ozzi", role: "Technical Director & Senior Women coach", email: "td@humecityfc.com", phone: "[Phone number]", teamId: "t-senior", canViewAll: true },
       { id: "coach-selena", name: "Selena", role: "Under 9 girls coach", email: "coach.u9girls@example.com", phone: "[Phone number]", teamId: "t-u9", canViewAll: false },
       { id: "coach-david", name: "David Crisp", role: "Under 14s coach", email: "coach.u14s@example.com", phone: "[Phone number]", teamId: "t-u14", canViewAll: false },
-      { id: "coach-hakan", name: "Hakan Dogan", role: "Under 14s assistant coach", email: "assistant.u14s@example.com", phone: "[Phone number]", teamId: "t-u14", canViewAll: false },
       { id: "coach-girls", name: "Sample Coach A", role: "Girls U8-U18 coach", email: "coach.girls@example.com", phone: "[Phone number]", teamId: "t-girls", canViewAll: false },
       { id: "coach-u16", name: "Sample Coach B", role: "U16 Girls coach", email: "coach.u16@example.com", phone: "[Phone number]", teamId: "t-u16", canViewAll: false },
       { id: "coach-mini", name: "Sample Coach D", role: "MiniRoo U8-U12 coach", email: "coach.miniroo@example.com", phone: "[Phone number]", teamId: "t-mini", canViewAll: false }
@@ -1483,7 +1482,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
       seeded.periods.forEach(function (per) { if (!havePer[per.id]) data.periods.push(per); });
       data.periods.sort(function (a, b) { return String(a.start).localeCompare(String(b.start)); });
       if (data.settings.coaches) {
-        data.settings.coaches = data.settings.coaches.filter(function (c) { return c.id !== "coach-senior"; });
+        data.settings.coaches = data.settings.coaches.filter(function (c) { return c.id !== "coach-senior" && c.id !== "coach-hakan"; });
         data.settings.coaches.forEach(function (c) { if (c.id === "coach-ozzi") { c.role = "Technical Director & Senior Women coach"; c.teamId = "t-senior"; c.canViewAll = true; } });
       }
       if (!data.settings.coaches || !data.settings.coaches.length) data.settings.coaches = defaultCoaches();
