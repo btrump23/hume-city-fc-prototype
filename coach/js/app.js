@@ -2,7 +2,7 @@
 (function () {
   var db = HCFC.load();
   var state = { tab: "roster", q: "", tracking: "all", medFlagged: false, toast: "", modal: null, taskSetId: null, assessView: "grid", assessPeriodId: null, assessPlayerId: null };
-  var TABS = [["roster","Roster"],["tracking","Tracking"],["fees","Fees & Uniform"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
+  var TABS = [["roster","Roster"],["tracking","Tracking"],["fees","Fees & Uniform"],["duties","Captain & Fruit Roster"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
 
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }
@@ -269,6 +269,59 @@
       '<div class="table-wrap"><table class="data"><thead><tr><th>Player</th><th>Fee status</th><th>Amount ($)</th><th>Date paid</th><th>Uniform order</th><th>Size</th><th>Collection</th></tr></thead><tbody>'+
       (rows||"<tr><td colspan='7'>No players match this filter.</td></tr>")+"</tbody></table></div>"+
       '<p class="help">Changes here also show in the Tracking tab, as both use the same player records. Size list is configurable in Settings.</p>';
+  }
+
+  function dutyWeeks(){
+    var d=new Date(); d=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    d.setDate(d.getDate()+((6-d.getDay()+7)%7));
+    var out=[]; for(var i=0;i<8;i++){ var x=new Date(d); x.setDate(d.getDate()+7*i); out.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")); }
+    return out;
+  }
+  function dutyFor(week){
+    db.duties=db.duties||[];
+    return db.duties.filter(function(x){ return x.teamId===teamId() && x.week===week; })[0];
+  }
+  function dutyAutofill(onlyEmpty){
+    var players=teamPlayers(); if(!players.length) return;
+    db.duties=db.duties||[];
+    dutyWeeks().forEach(function(w,i){
+      var rec=dutyFor(w);
+      if(!rec){ rec={teamId:teamId(),week:w,captainId:"",fruitId:"",notes:""}; db.duties.push(rec); }
+      if(!onlyEmpty||!rec.captainId) rec.captainId=players[i%players.length].id;
+      if(!onlyEmpty||!rec.fruitId) rec.fruitId=players[(i+Math.ceil(players.length/2))%players.length].id;
+    });
+    persist();
+  }
+  function viewDuties(){
+    var players=teamPlayers();
+    db.duties=db.duties||[]; db.teamCaptains=db.teamCaptains||{};
+    var weeks=dutyWeeks();
+    if(players.length && !db.duties.some(function(x){ return x.teamId===teamId(); })) dutyAutofill(false);
+    var tc=db.teamCaptains[teamId()]||{captainId:"",viceId:""};
+    function pOpts(sel){ return '<option value="">—</option>'+players.map(function(p){ return '<option value="'+p.id+'"'+(p.id===sel?" selected":"")+">"+esc(p.name)+"</option>"; }).join(""); }
+    var counts={}; players.forEach(function(p){ counts[p.id]={c:0,f:0}; });
+    var rows=weeks.map(function(w){
+      var r=dutyFor(w)||{captainId:"",fruitId:"",notes:""};
+      if(counts[r.captainId]) counts[r.captainId].c++;
+      if(counts[r.fruitId]) counts[r.fruitId].f++;
+      return "<tr><td>"+fmtDate(w)+"</td>"+
+        '<td><select data-act="duty" data-week="'+w+'" data-k="captainId">'+pOpts(r.captainId)+"</select></td>"+
+        '<td><select data-act="duty" data-week="'+w+'" data-k="fruitId">'+pOpts(r.fruitId)+"</select></td>"+
+        '<td><input data-act="duty" data-week="'+w+'" data-k="notes" value="'+esc(r.notes||"")+'" placeholder="e.g. oranges, cut into quarters"></td></tr>';
+    }).join("");
+    var share=players.map(function(p){ return "<tr><td>"+esc(p.name)+"</td><td>"+counts[p.id].c+"</td><td>"+counts[p.id].f+"</td></tr>"; }).join("");
+    return pageHead("Captain & Fruit Roster","Season captain, weekly match captain and who brings fruit. Sample players only.",
+      '<button class="btn btn-small" data-act="duty-autofill">Auto-fill rotation</button>'+
+      '<button class="btn btn-outline btn-small" data-act="duty-clear">Clear roster</button>')+
+      (players.length?"":"<p>No players in this team. Add players on the Roster tab first.</p>")+
+      '<div class="card" style="margin-bottom:1rem"><h2>Team captain</h2><div class="grid-2">'+
+      '<div class="field"><label>Season captain</label><select data-act="team-captain" data-k="captainId">'+pOpts(tc.captainId)+"</select></div>"+
+      '<div class="field"><label>Vice-captain</label><select data-act="team-captain" data-k="viceId">'+pOpts(tc.viceId)+"</select></div></div></div>"+
+      '<h2>Weekly roster (match days)</h2>'+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Week of</th><th>Match captain</th><th>Bringing fruit</th><th>Notes</th></tr></thead><tbody>'+rows+"</tbody></table></div>"+
+      '<h2 style="margin-top:1.25rem">Fair share</h2><div class="table-wrap"><table class="data"><thead><tr><th>Player</th><th>Times captain</th><th>Times on fruit</th></tr></thead><tbody>'+
+      (share||"<tr><td colspan='3'>No players.</td></tr>")+"</tbody></table></div>"+
+      '<p class="help">Auto-fill rotates through the squad so every player gets a turn. Change any week by hand. Prototype only, nothing is sent to families.</p>';
   }
 
   function currentCoach(){
@@ -1261,7 +1314,7 @@
 
   function render(keepModal){
     document.body.className="coach";
-    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
+    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, duties:viewDuties, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
     document.getElementById("app").innerHTML=shell(view());
     bind();
   }
@@ -1294,6 +1347,15 @@
     if(e.target && e.target.id==="search"){ state.q=e.target.value; if(e.type==="change") render(); return; }
     if(e.target && e.target.id==="track-filter"){ state.tracking=e.target.value; render(); return; }
     if(e.target && e.target.id==="fees-filter"){ state.feesFilter=e.target.value; render(); return; }
+    if(e.target && e.target.getAttribute && e.target.getAttribute("data-act")==="duty"){
+      var dw=e.target.getAttribute("data-week"), drec=dutyFor(dw);
+      if(!drec){ drec={teamId:teamId(),week:dw,captainId:"",fruitId:"",notes:""}; db.duties.push(drec); }
+      drec[e.target.getAttribute("data-k")]=e.target.value; persist(); render(); return;
+    }
+    if(e.target && e.target.getAttribute && e.target.getAttribute("data-act")==="team-captain"){
+      db.teamCaptains=db.teamCaptains||{}; var tcr=db.teamCaptains[teamId()]||(db.teamCaptains[teamId()]={captainId:"",viceId:""});
+      tcr[e.target.getAttribute("data-k")]=e.target.value; persist(); render(); return;
+    }
     if(e.target && e.target.id==="task-set-switch"){ state.taskSetId=e.target.value; render(); return; }
     if(e.target && e.target.id==="med-flag"){ state.medFlagged=e.target.checked; render(); return; }
     if(e.target && e.target.id==="import-roster" && e.target.files && e.target.files[0]) importRosterFile(e.target.files[0]);
@@ -1322,6 +1384,8 @@
     var act=btn.getAttribute("data-act");
     var id=btn.getAttribute("data-id");
     if(act==="tab"){ state.tab=btn.getAttribute("data-tab"); state.modal=null; render(); }
+    else if(act==="duty-autofill"){ dutyAutofill(false); render(); toast("Rotation filled for the next 8 weeks."); }
+    else if(act==="duty-clear"){ if(confirm("Clear the captain and fruit roster for this team?")){ db.duties=(db.duties||[]).filter(function(x){ return x.teamId!==teamId(); }); db.duties.push({teamId:teamId(),week:"cleared",captainId:"",fruitId:"",notes:""}); persist(); render(); } }
     else if(act==="assess-view"){ state.assessView=btn.getAttribute("data-view"); render(); }
     else if(act==="print-card"){ printReportCard(); }
     else if(act==="dl-card"){
