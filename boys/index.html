@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boys Program — coming soon | Hume City FC (draft)</title>
+  <meta name="description" content="Coming soon stub for the Hume City FC Boys Program.">
+  <link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2080%2096%22%20role%3D%22img%22%20aria-labelledby%3D%22crestTitle%20crestDesc%22%3E%0A%20%20%3Ctitle%20id%3D%22crestTitle%22%3EPlaceholder%20crest%3C%2Ftitle%3E%0A%20%20%3Cdesc%20id%3D%22crestDesc%22%3EA%20simple%20shield%20used%20as%20a%20placeholder.%20This%20is%20not%20the%20official%20Hume%20City%20FC%20logo.%3C%2Fdesc%3E%0A%20%20%3Cpath%20d%3D%22M40%204L74%2016.5V50c0%2022.5-18%2036.5-34%2042.5C24%2086.5%206%2072.5%206%2050V16.5L40%204z%22%20fill%3D%22%23C8102E%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M40%2010L68%2020v28.5c0%2018-14.2%2029.2-28%2034.5-13.8-5.3-28-16.5-28-34.5V20L40%2010z%22%20fill%3D%22%23C8102E%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M14%2042h52v10H14z%22%20fill%3D%22%23fff%22%2F%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2236%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22700%22%3EHC%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2251.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23C8102E%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%227%22%20font-weight%3D%22700%22%3EFC%3C%2Ftext%3E%0A%3C%2Fsvg%3E%0A">
+  <style>
+/* Hume City FC Girls Program — shared stylesheet (offline, system fonts) */
+:root {
+  --red: #C8102E;
+  --red-dark: #8E0B20;
+  --red-deep: #3F0710;
+  --ink: #1A1214;
+  --muted: #5A5052;
+  --line: #E4D6D8;
+  --paper: #F6F2F2;
+  --white: #ffffff;
+  --good: #0F7B3A;
+  --good-bg: #E8F6EE;
+  --bad: #B42318;
+  --bad-bg: #FDECEC;
+  --warn: #9A6700;
+  --warn-bg: #FFF6D8;
+  --info: #175CD3;
+  --info-bg: #E8F1FC;
+  --shadow: 0 8px 28px rgba(26, 18, 20, 0.08);
+  --radius: 14px;
+  --display: "Arial Narrow", "Franklin Gothic Medium", "Helvetica Neue Condensed", Impact, sans-serif;
+  --body: "Segoe UI", Calibri, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--body);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--white);
+}
+img { max-width: 100%; height: auto; }
+a { color: var(--red-dark); }
+a:hover { color: var(--red); }
+:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 3px;
+}
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  background: var(--red);
+  color: var(--white);
+  padding: 0.6rem 1rem;
+  z-index: 100;
+  border-radius: 0 0 8px 8px;
+}
+.skip-link:focus { top: 0; }
+
+.wrap {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+.wrap-wide {
+  width: min(1240px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(200, 16, 46, 0.15);
+}
+.site-header::before {
+  content: "";
+  display: block;
+  height: 5px;
+  background: var(--red);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.4rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+.brand img, .brand svg, .crest {
+  width: 42px;
+  height: 50px;
+  flex: none;
+}
+.brand-name {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.brand-tag {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+.nav-toggle {
+  display: none;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.site-nav a, .site-nav .nav-disabled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 650;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+}
+.site-nav a:hover { background: var(--paper); color: var(--red-dark); }
+.site-nav a[aria-current="page"] {
+  background: var(--red);
+  color: var(--white);
+}
+.nav-disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-red { background: var(--red); color: #fff; border-color: var(--red); }
+.badge-warn { background: var(--warn-bg); color: var(--warn); border-color: #E8C56B; }
+.badge-good { background: var(--good-bg); color: var(--good); border-color: #9DDCB6; }
+.badge-bad { background: var(--bad-bg); color: var(--bad); border-color: #F2B8B5; }
+
+.draft-banner {
+  background: var(--warn-bg);
+  color: #5C4300;
+  border-bottom: 1px solid #E8C56B;
+  font-size: 0.92rem;
+  padding: 0.55rem 0;
+  text-align: center;
+}
+.draft-banner strong { text-transform: uppercase; letter-spacing: 0.04em; }
+
+.hero {
+  background:
+    linear-gradient(120deg, rgba(63, 7, 16, 0.94), rgba(200, 16, 46, 0.88)),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.06) 0 12px, transparent 12px 24px);
+  color: var(--white);
+  padding: 3.5rem 0 3.2rem;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(2.3rem, 6vw, 4.1rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.8rem;
+  font-weight: 700;
+}
+.hero .lede {
+  font-size: 1.15rem;
+  max-width: 38rem;
+  color: rgba(255,255,255,0.92);
+  margin: 0 0 1.4rem;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2rem;
+  align-items: center;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--red);
+  color: var(--white);
+}
+.btn:hover { background: var(--red-dark); color: var(--white); }
+.btn-secondary {
+  background: transparent;
+  border-color: var(--white);
+  color: var(--white);
+}
+.btn-secondary:hover { background: var(--white); color: var(--red-dark); }
+.btn-outline {
+  background: var(--white);
+  color: var(--red-dark);
+  border-color: var(--red);
+}
+.btn-outline:hover { background: var(--red); color: var(--white); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-ghost:hover { border-color: var(--ink); background: var(--paper); color: var(--ink); }
+.btn-small { padding: 0.35rem 0.75rem; font-size: 0.9rem; }
+
+.kicker {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--red);
+  font-size: 0.86rem;
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+}
+.section { padding: 3.4rem 0; }
+.section-alt { background: var(--paper); }
+.section h2 {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.05;
+  margin: 0 0 0.6rem;
+}
+.section .intro { max-width: 42rem; color: var(--muted); margin: 0 0 1.6rem; }
+
+.cards, .grid-3, .grid-2, .grid-4 {
+  display: grid;
+  gap: 1.1rem;
+}
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.3rem 1.35rem;
+}
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(26, 18, 20, 0.12);
+  border-color: #f0b8bf;
+}
+.card h3 {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0.35rem 0 0.45rem;
+  font-size: 1.45rem;
+}
+.card p { margin: 0 0 0.8rem; color: var(--muted); }
+.card .card-go {
+  font-weight: 700;
+  color: var(--red-dark);
+}
+
+.photo-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 200px;
+  border-radius: var(--radius);
+  border: 2px dashed rgba(255,255,255,0.55);
+  background:
+    linear-gradient(160deg, #6a101c 0%, #C8102E 55%, #3F0710 100%);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 0.95rem;
+  padding: 1rem;
+}
+.photo-ph--paper {
+  border-color: var(--line);
+  background: linear-gradient(160deg, #ead9db, #c9a3a8 55%, #8e3b47);
+  color: var(--ink);
+  min-height: 160px;
+}
+.photo-ph--dark {
+  background: linear-gradient(160deg, #1A1214, #5a1520 60%, #C8102E);
+}
+
+.avatar-ph {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ead9db, #8e3b47);
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+}
+
+.staff-card .role { color: var(--red-dark); font-weight: 700; margin: 0.15rem 0 0.5rem; }
+.staff-card .bio { color: var(--muted); }
+.qual { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.8rem; }
+
+.pathway {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+}
+.pathway-step {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-top: 6px solid var(--red);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+}
+.pathway-step .n {
+  font-family: var(--display);
+  color: var(--red);
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+}
+.note {
+  background: var(--info-bg);
+  border-left: 4px solid var(--info);
+  padding: 0.8rem 1rem;
+  border-radius: 0 10px 10px 0;
+  color: #183B7A;
+  margin-top: 1rem;
+}
+.warn-note {
+  background: var(--warn-bg);
+  border-left: 4px solid var(--warn);
+  padding: 0.8rem 1rem;
+  border-radius: 0 10px 10px 0;
+  color: #5C4300;
+}
+.sensitive-note {
+  background: var(--bad-bg);
+  border-left: 4px solid var(--bad);
+  padding: 0.8rem 1rem;
+  border-radius: 0 10px 10px 0;
+  color: #7A150F;
+}
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+.timeline strong { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+.week-day {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.7rem;
+  min-height: 7.5rem;
+}
+.week-day h3 { margin: 0 0 0.35rem; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.week-day p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.week-day.off { background: #f3f0f0; }
+
+.form {
+  display: grid;
+  gap: 0.85rem;
+}
+.form label, .field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.form input, .form select, .form textarea,
+.field input, .field select, .field textarea {
+  width: 100%;
+  font: inherit;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #cbb7b9;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+}
+.form textarea { min-height: 7rem; resize: vertical; }
+.help { font-size: 0.88rem; color: var(--muted); margin: 0.25rem 0 0; }
+
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.checklist li::before {
+  content: "✓";
+  color: var(--red);
+  font-weight: 800;
+  flex: none;
+}
+
+.site-footer {
+  background: var(--red-deep);
+  color: #f7e9eb;
+  padding: 2.2rem 0 1.6rem;
+  margin-top: 0;
+}
+.site-footer a { color: #fff; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 1.5rem;
+}
+.site-footer h2, .site-footer h3 {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1rem;
+  margin: 0 0 0.6rem;
+  color: #fff;
+}
+.muted, .tiny { color: rgba(247, 233, 235, 0.75); font-size: 0.9rem; }
+.legal { border-top: 1px solid rgba(255,255,255,0.15); margin-top: 1.4rem; padding-top: 1rem; font-size: 0.85rem; }
+
+/* Prototype hub */
+.hub-hero { padding: 2.6rem 0 1.4rem; }
+.hub-hero h1 { margin-bottom: 0.5rem; }
+.hub-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+.hub-card {
+  min-height: 16rem;
+  display: flex;
+  flex-direction: column;
+  border-top: 8px solid var(--red);
+}
+.hub-card .num {
+  font-family: var(--display);
+  color: var(--red);
+  letter-spacing: 0.12em;
+  font-size: 0.9rem;
+}
+.hub-card .card-go { margin-top: auto; }
+
+@media (max-width: 900px) {
+  .hero-grid, .grid-3, .grid-4, .pathway, .hub-cards, .footer-grid, .week-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .week-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .nav-toggle { display: inline-flex; }
+  .site-nav {
+    display: none;
+    position: absolute;
+    left: 0; right: 0;
+    top: 100%;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.6rem;
+  }
+  .site-nav.is-open { display: flex; }
+  .header-inner { position: relative; }
+  .hero-grid, .grid-2, .grid-3, .grid-4, .pathway, .hub-cards, .footer-grid, .week-grid, .timeline li {
+    grid-template-columns: 1fr;
+  }
+  .hero { padding: 2.2rem 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .card-link { transition: none; }
+}
+
+
+/* Built by Trump Technology & Engineering */
+.built-by {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+}
+.built-by img {
+  width: 36px;
+  height: 20px;
+  object-fit: contain;
+  flex: none;
+  display: block;
+}
+.built-by-label {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  font-weight: 700;
+}
+.built-by-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+.site-footer .built-by,
+.coach-foot .built-by {
+  margin-top: 0.9rem;
+  color: #fff;
+}
+.coach-foot {
+  border-top: 1px solid var(--line);
+  padding: 1rem 0 1.3rem;
+  margin-top: auto;
+}
+
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="draft-banner"><div class="wrap"><strong>Draft / temporary prototype</strong> — placeholder copy and images only. Not the live club website. Not for real player data.</div></div>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../site/index.html">
+        <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2080%2096%22%20role%3D%22img%22%20aria-labelledby%3D%22crestTitle%20crestDesc%22%3E%0A%20%20%3Ctitle%20id%3D%22crestTitle%22%3EPlaceholder%20crest%3C%2Ftitle%3E%0A%20%20%3Cdesc%20id%3D%22crestDesc%22%3EA%20simple%20shield%20used%20as%20a%20placeholder.%20This%20is%20not%20the%20official%20Hume%20City%20FC%20logo.%3C%2Fdesc%3E%0A%20%20%3Cpath%20d%3D%22M40%204L74%2016.5V50c0%2022.5-18%2036.5-34%2042.5C24%2086.5%206%2072.5%206%2050V16.5L40%204z%22%20fill%3D%22%23C8102E%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M40%2010L68%2020v28.5c0%2018-14.2%2029.2-28%2034.5-13.8-5.3-28-16.5-28-34.5V20L40%2010z%22%20fill%3D%22%23C8102E%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M14%2042h52v10H14z%22%20fill%3D%22%23fff%22%2F%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2236%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22700%22%3EHC%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2251.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23C8102E%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%227%22%20font-weight%3D%22700%22%3EFC%3C%2Ftext%3E%0A%3C%2Fsvg%3E%0A" width="42" height="50" alt="Placeholder crest">
+        <span>
+          <span class="brand-name">Hume City FC</span>
+          <span class="brand-tag">Placeholder crest · Girls Program draft</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="site-nav" id="site-nav" aria-label="Primary">
+        <a href="../site/index.html">Home</a>
+        <a href="../girls/index.html">Girls Program</a>
+        <span class="nav-disabled" title="Coming soon" aria-disabled="true">Boys Program <span class="badge">Coming soon</span></span>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <div class="wrap">
+        <p class="kicker" style="color:#ffd4da">Boys Program</p>
+        <h1>Coming soon.</h1>
+        <p class="lede">This is a placeholder page so the site can grow a Boys Program section later, using the same layout and colours as the Girls Program. The item is disabled in the main navigation until the club is ready.</p>
+        <a class="btn" href="../girls/index.html">View the Girls Program</a>
+      </div>
+    </section>
+    <section class="section">
+      <div class="wrap">
+        <p class="kicker">Planned structure</p>
+        <h2>Boys and mixed pathway</h2>
+        <p class="intro">These names are taken from the club’s public Join page. Do not invent other team names until the club confirms them.</p>
+        <div class="grid-2">
+          <article class="card"><h3>MiniRoo U8 – U12</h3><p>Mixed junior program.</p></article>
+          <article class="card"><h3>Community U12 – U16</h3><p>Community boys’ pathway.</p></article>
+          <article class="card"><h3>NPL U13 – U18</h3><p>National Premier Leagues youth pathway.</p></article>
+          <article class="card"><h3>Senior Development Phase</h3><p>U20, U23 and Seniors, as listed by the club.</p></article>
+        </div>
+        <p class="note">When you are ready to build this section, copy girls/index.html as a starting point, replace the content, and enable the Boys Program link in the shared header. See the README for the step-by-step.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h2>Hume City Football Club</h2>
+        <p>Broadmeadows / Hume, Melbourne’s north.</p>
+        <p class="tiny">Placeholder crest used throughout — the official club logo has not been supplied and has not been copied.</p>
+      </div>
+      <div>
+        <h3>Programs</h3>
+        <p><a href="../site/index.html">Public home</a><br>
+        <a href="../girls/index.html">Girls Program</a><br>
+        Boys Program — coming soon</p>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>Email: <a href="mailto:placeholder@example.com">placeholder@example.com</a><br>
+        Phone: [Phone number]<br>
+        Ground: [Venue / ground]</p>
+      </div>
+    </div>
+    <div class="wrap legal">
+      <p>Draft website prepared for Hume City FC by Trump Technology &amp; Engineering. All staff names, photos, fixtures and contact details are placeholders and must be replaced by the club. This prototype is not published.</p>
+          <div class="built-by"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICAYAAAA+hf0SAAADWUlEQVR42u2dvWscRxiHn3f2VrHPZ9BXZUIKV8FuXZlUCSRdOqWPG6e6xpA2USsSDBIEXPgfkBpDKoPLBFykjARx4yIQUsg28uVO4m533hR3si6SHe5jOPlWv6c52F3Y/c08+85+cQNCiIuLnV7grGVww6of/aYbX5X9zNsZ7F6AzHtu7JTSXpytAM5aZuyUvrrZxOqfEDslWFa9yF4S6hmx85u9aG4A+Mrmt4T6rcpn9s4vtt/cPO5rgNrJRsdl3z/DGl8SHAgVdD6C1cEOV4CN/mlgX2D1T6uduQHe/gDYHB7ia28pCi28XeBHxdvXzz0FWA38YOgMOcA7Fc8camCt0yvOhnUP2JvlVWyM41zDpT4bylrdzO5nyltAXGgkgAQQEkBIACEBxAXk7C2PUQK9/r2je7r92BTP2r2XLrIVgAPDz8Tft8wOXiTPbJQjPAewRbKrOU6erEDEw37bMkl7GIRGnq4xYo5dgbKzNLRwidDIcUuYuTPwapLMwQj1xJmvQtFe/D8B4uD3IWXrKdaJ+LStYQbuOHcI+XW8iKMPO+5YZnh8TWz9ABbTnAxEYgyYPRs6zJ8oW0+wowSZ3cAc+AbLPxw/c82IxQviP/fTFQAikQDsnuprZvIK1Fe3HmOXP8fHetkSsVrAe3/afvOjeRtbfXXrV+zSbfxwzMx5wLt/2H7z43O5Bui/G3+VqA4uZNAtobfQH3Ynu1B1frwMjQL+MriWaIxeiv/9HiBV5qMAlyJ084kzOzXnQZ6+u08yv1OAwQZJPhpwtqPxdelsTdlpr3vGvcIHY0rqZkmb+btgrMcpM7txtzeLCqDbQD0HEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAcQ5MqtZMkv6U7aWjP5v38cTLczpdOc+eWabXeYZCeCLWL3W39+oRcfBcogHy/MpgA0y25iZFyB2lysiwO7AfPsZbz8nHkYIYeSzIXQD5i9hz+en4793WAf8Ed7+nXg0ZuZeAP7W4CRmU6dmMgCwncGuTX6Q68W8Nex0mW/66aldhBAiPf8CIoMgCZtb1o8AAAAASUVORK5CYII=" width="36" height="20" alt="Trump Technology &amp; Engineering mark"><span><span class="built-by-label">Built by</span><span class="built-by-name">Trump Technology &amp; Engineering</span></span></div>
+    </div>
+  </footer>
+  <script>
+(function () {
+  var toggle = document.querySelector(".nav-toggle");
+  var nav = document.getElementById("site-nav");
+  if (!toggle || !nav) return;
+  toggle.addEventListener("click", function () {
+    var open = nav.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "Close" : "Menu";
+  });
+})();
+
+  </script>
+</body>
+</html>

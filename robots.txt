@@ -1,0 +1,7 @@
+# Public pages may be indexed once the site is published.
+# The coach dashboard is private and must not be crawled.
+User-agent: *
+Disallow: /coach/
+Disallow: /coach
+
+# This site is a local draft and is not deployed.

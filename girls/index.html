@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Girls Program — Hume City FC (draft)</title>
+  <meta name="description" content="Behind the scenes of the Hume City FC Girls Program: coaching staff, training, matchday and how to register interest.">
+  <link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2080%2096%22%20role%3D%22img%22%20aria-labelledby%3D%22crestTitle%20crestDesc%22%3E%0A%20%20%3Ctitle%20id%3D%22crestTitle%22%3EPlaceholder%20crest%3C%2Ftitle%3E%0A%20%20%3Cdesc%20id%3D%22crestDesc%22%3EA%20simple%20shield%20used%20as%20a%20placeholder.%20This%20is%20not%20the%20official%20Hume%20City%20FC%20logo.%3C%2Fdesc%3E%0A%20%20%3Cpath%20d%3D%22M40%204L74%2016.5V50c0%2022.5-18%2036.5-34%2042.5C24%2086.5%206%2072.5%206%2050V16.5L40%204z%22%20fill%3D%22%23C8102E%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M40%2010L68%2020v28.5c0%2018-14.2%2029.2-28%2034.5-13.8-5.3-28-16.5-28-34.5V20L40%2010z%22%20fill%3D%22%23C8102E%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M14%2042h52v10H14z%22%20fill%3D%22%23fff%22%2F%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2236%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22700%22%3EHC%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2251.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23C8102E%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%227%22%20font-weight%3D%22700%22%3EFC%3C%2Ftext%3E%0A%3C%2Fsvg%3E%0A">
+  <style>
+/* Hume City FC Girls Program — shared stylesheet (offline, system fonts) */
+:root {
+  --red: #C8102E;
+  --red-dark: #8E0B20;
+  --red-deep: #3F0710;
+  --ink: #1A1214;
+  --muted: #5A5052;
+  --line: #E4D6D8;
+  --paper: #F6F2F2;
+  --white: #ffffff;
+  --good: #0F7B3A;
+  --good-bg: #E8F6EE;
+  --bad: #B42318;
+  --bad-bg: #FDECEC;
+  --warn: #9A6700;
+  --warn-bg: #FFF6D8;
+  --info: #175CD3;
+  --info-bg: #E8F1FC;
+  --shadow: 0 8px 28px rgba(26, 18, 20, 0.08);
+  --radius: 14px;
+  --display: "Arial Narrow", "Franklin Gothic Medium", "Helvetica Neue Condensed", Impact, sans-serif;
+  --body: "Segoe UI", Calibri, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--body);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--white);
+}
+img { max-width: 100%; height: auto; }
+a { color: var(--red-dark); }
+a:hover { color: var(--red); }
+:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 3px;
+}
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  background: var(--red);
+  color: var(--white);
+  padding: 0.6rem 1rem;
+  z-index: 100;
+  border-radius: 0 0 8px 8px;
+}
+.skip-link:focus { top: 0; }
+
+.wrap {
+  width: min(1120px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+.wrap-wide {
+  width: min(1240px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(200, 16, 46, 0.15);
+}
+.site-header::before {
+  content: "";
+  display: block;
+  height: 5px;
+  background: var(--red);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.4rem;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+.brand img, .brand svg, .crest {
+  width: 42px;
+  height: 50px;
+  flex: none;
+}
+.brand-name {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.brand-tag {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+.nav-toggle {
+  display: none;
+  background: var(--white);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.site-nav a, .site-nav .nav-disabled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 650;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+}
+.site-nav a:hover { background: var(--paper); color: var(--red-dark); }
+.site-nav a[aria-current="page"] {
+  background: var(--red);
+  color: var(--white);
+}
+.nav-disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-red { background: var(--red); color: #fff; border-color: var(--red); }
+.badge-warn { background: var(--warn-bg); color: var(--warn); border-color: #E8C56B; }
+.badge-good { background: var(--good-bg); color: var(--good); border-color: #9DDCB6; }
+.badge-bad { background: var(--bad-bg); color: var(--bad); border-color: #F2B8B5; }
+
+.draft-banner {
+  background: var(--warn-bg);
+  color: #5C4300;
+  border-bottom: 1px solid #E8C56B;
+  font-size: 0.92rem;
+  padding: 0.55rem 0;
+  text-align: center;
+}
+.draft-banner strong { text-transform: uppercase; letter-spacing: 0.04em; }
+
+.hero {
+  background:
+    linear-gradient(120deg, rgba(63, 7, 16, 0.94), rgba(200, 16, 46, 0.88)),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.06) 0 12px, transparent 12px 24px);
+  color: var(--white);
+  padding: 3.5rem 0 3.2rem;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(2.3rem, 6vw, 4.1rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.8rem;
+  font-weight: 700;
+}
+.hero .lede {
+  font-size: 1.15rem;
+  max-width: 38rem;
+  color: rgba(255,255,255,0.92);
+  margin: 0 0 1.4rem;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2rem;
+  align-items: center;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--red);
+  color: var(--white);
+}
+.btn:hover { background: var(--red-dark); color: var(--white); }
+.btn-secondary {
+  background: transparent;
+  border-color: var(--white);
+  color: var(--white);
+}
+.btn-secondary:hover { background: var(--white); color: var(--red-dark); }
+.btn-outline {
+  background: var(--white);
+  color: var(--red-dark);
+  border-color: var(--red);
+}
+.btn-outline:hover { background: var(--red); color: var(--white); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-ghost:hover { border-color: var(--ink); background: var(--paper); color: var(--ink); }
+.btn-small { padding: 0.35rem 0.75rem; font-size: 0.9rem; }
+
+.kicker {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--red);
+  font-size: 0.86rem;
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+}
+.section { padding: 3.4rem 0; }
+.section-alt { background: var(--paper); }
+.section h2 {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.05;
+  margin: 0 0 0.6rem;
+}
+.section .intro { max-width: 42rem; color: var(--muted); margin: 0 0 1.6rem; }
+
+.cards, .grid-3, .grid-2, .grid-4 {
+  display: grid;
+  gap: 1.1rem;
+}
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.3rem 1.35rem;
+}
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(26, 18, 20, 0.12);
+  border-color: #f0b8bf;
+}
+.card h3 {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0.35rem 0 0.45rem;
+  font-size: 1.45rem;
+}
+.card p { margin: 0 0 0.8rem; color: var(--muted); }
+.card .card-go {
+  font-weight: 700;
+  color: var(--red-dark);
+}
+
+.photo-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 200px;
+  border-radius: var(--radius);
+  border: 2px dashed rgba(255,255,255,0.55);
+  background:
+    linear-gradient(160deg, #6a101c 0%, #C8102E 55%, #3F0710 100%);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 0.95rem;
+  padding: 1rem;
+}
+.photo-ph--paper {
+  border-color: var(--line);
+  background: linear-gradient(160deg, #ead9db, #c9a3a8 55%, #8e3b47);
+  color: var(--ink);
+  min-height: 160px;
+}
+.photo-ph--dark {
+  background: linear-gradient(160deg, #1A1214, #5a1520 60%, #C8102E);
+}
+
+.avatar-ph {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #ead9db, #8e3b47);
+  border: 3px solid var(--white);
+  box-shadow: 0 0 0 2px var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+}
+
+.staff-card .role { color: var(--red-dark); font-weight: 700; margin: 0.15rem 0 0.5rem; }
+.staff-card .bio { color: var(--muted); }
+.qual { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.8rem; }
+
+.pathway {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+}
+.pathway-step {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-top: 6px solid var(--red);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+}
+.pathway-step .n {
+  font-family: var(--display);
+  color: var(--red);
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+}
+.note {
+  background: var(--info-bg);
+  border-left: 4px solid var(--info);
+  padding: 0.8rem 1rem;
+  border-radius: 0 10px 10px 0;
+  color: #183B7A;
+  margin-top: 1rem;
+}
+.warn-note {
+  background: var(--warn-bg);
+  border-left: 4px solid var(--warn);
+  padding: 0.8rem 1rem;
+  border-radius: 0 10px 10px 0;
+  color: #5C4300;
+}
+.sensitive-note {
+  background: var(--bad-bg);
+  border-left: 4px solid var(--bad);
+  padding: 0.8rem 1rem;
+  border-radius: 0 10px 10px 0;
+  color: #7A150F;
+}
+
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+.timeline strong { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+.week-day {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.7rem;
+  min-height: 7.5rem;
+}
+.week-day h3 { margin: 0 0 0.35rem; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.week-day p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.week-day.off { background: #f3f0f0; }
+
+.form {
+  display: grid;
+  gap: 0.85rem;
+}
+.form label, .field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+.form input, .form select, .form textarea,
+.field input, .field select, .field textarea {
+  width: 100%;
+  font: inherit;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #cbb7b9;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+}
+.form textarea { min-height: 7rem; resize: vertical; }
+.help { font-size: 0.88rem; color: var(--muted); margin: 0.25rem 0 0; }
+
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.checklist li::before {
+  content: "✓";
+  color: var(--red);
+  font-weight: 800;
+  flex: none;
+}
+
+.site-footer {
+  background: var(--red-deep);
+  color: #f7e9eb;
+  padding: 2.2rem 0 1.6rem;
+  margin-top: 0;
+}
+.site-footer a { color: #fff; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 1.5rem;
+}
+.site-footer h2, .site-footer h3 {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1rem;
+  margin: 0 0 0.6rem;
+  color: #fff;
+}
+.muted, .tiny { color: rgba(247, 233, 235, 0.75); font-size: 0.9rem; }
+.legal { border-top: 1px solid rgba(255,255,255,0.15); margin-top: 1.4rem; padding-top: 1rem; font-size: 0.85rem; }
+
+/* Prototype hub */
+.hub-hero { padding: 2.6rem 0 1.4rem; }
+.hub-hero h1 { margin-bottom: 0.5rem; }
+.hub-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+.hub-card {
+  min-height: 16rem;
+  display: flex;
+  flex-direction: column;
+  border-top: 8px solid var(--red);
+}
+.hub-card .num {
+  font-family: var(--display);
+  color: var(--red);
+  letter-spacing: 0.12em;
+  font-size: 0.9rem;
+}
+.hub-card .card-go { margin-top: auto; }
+
+@media (max-width: 900px) {
+  .hero-grid, .grid-3, .grid-4, .pathway, .hub-cards, .footer-grid, .week-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .week-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .nav-toggle { display: inline-flex; }
+  .site-nav {
+    display: none;
+    position: absolute;
+    left: 0; right: 0;
+    top: 100%;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.6rem;
+  }
+  .site-nav.is-open { display: flex; }
+  .header-inner { position: relative; }
+  .hero-grid, .grid-2, .grid-3, .grid-4, .pathway, .hub-cards, .footer-grid, .week-grid, .timeline li {
+    grid-template-columns: 1fr;
+  }
+  .hero { padding: 2.2rem 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .card-link { transition: none; }
+}
+
+
+/* Built by Trump Technology & Engineering */
+.built-by {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+}
+.built-by img {
+  width: 36px;
+  height: 20px;
+  object-fit: contain;
+  flex: none;
+  display: block;
+}
+.built-by-label {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  font-weight: 700;
+}
+.built-by-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+.site-footer .built-by,
+.coach-foot .built-by {
+  margin-top: 0.9rem;
+  color: #fff;
+}
+.coach-foot {
+  border-top: 1px solid var(--line);
+  padding: 1rem 0 1.3rem;
+  margin-top: auto;
+}
+
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="draft-banner"><div class="wrap"><strong>Draft / temporary prototype</strong> — placeholder copy and images only. Not the live club website. Not for real player data.</div></div>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../site/index.html">
+        <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2080%2096%22%20role%3D%22img%22%20aria-labelledby%3D%22crestTitle%20crestDesc%22%3E%0A%20%20%3Ctitle%20id%3D%22crestTitle%22%3EPlaceholder%20crest%3C%2Ftitle%3E%0A%20%20%3Cdesc%20id%3D%22crestDesc%22%3EA%20simple%20shield%20used%20as%20a%20placeholder.%20This%20is%20not%20the%20official%20Hume%20City%20FC%20logo.%3C%2Fdesc%3E%0A%20%20%3Cpath%20d%3D%22M40%204L74%2016.5V50c0%2022.5-18%2036.5-34%2042.5C24%2086.5%206%2072.5%206%2050V16.5L40%204z%22%20fill%3D%22%23C8102E%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M40%2010L68%2020v28.5c0%2018-14.2%2029.2-28%2034.5-13.8-5.3-28-16.5-28-34.5V20L40%2010z%22%20fill%3D%22%23C8102E%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M14%2042h52v10H14z%22%20fill%3D%22%23fff%22%2F%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2236%22%20text-anchor%3D%22middle%22%20fill%3D%22%23fff%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22700%22%3EHC%3C%2Ftext%3E%0A%20%20%3Ctext%20x%3D%2240%22%20y%3D%2251.5%22%20text-anchor%3D%22middle%22%20fill%3D%22%23C8102E%22%20font-family%3D%22Arial%20Narrow%2C%20Arial%2C%20sans-serif%22%20font-size%3D%227%22%20font-weight%3D%22700%22%3EFC%3C%2Ftext%3E%0A%3C%2Fsvg%3E%0A" width="42" height="50" alt="Placeholder crest">
+        <span>
+          <span class="brand-name">Hume City FC</span>
+          <span class="brand-tag">Placeholder crest · Girls Program draft</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="site-nav" id="site-nav" aria-label="Primary">
+        <a href="../site/index.html">Home</a>
+        <a href="../girls/index.html" aria-current="page">Girls Program</a>
+        <span class="nav-disabled" title="Coming soon" aria-disabled="true">Boys Program <span class="badge">Coming soon</span></span>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="kicker" style="color:#ffd4da">Girls Program · Behind the scenes</p>
+          <h1>The work you don’t see on matchday.</h1>
+          <p class="lede">A draft landing page about the technical directors and coaching staff who plan, teach and review every week of the Hume City FC Girls Program. All names, photos and copy here are placeholders, ready for the club to edit.</p>
+          <div class="hero-actions">
+            <a class="btn" href="#register">Register your interest</a>
+            <a class="btn btn-secondary" href="#staff">Meet the coaching staff</a>
+          </div>
+        </div>
+        <div class="photo-ph" role="img" aria-label="Photo: girls training session (placeholder)">Photo: girls training session<br>(placeholder)</div>
+      </div>
+    </section>
+
+    <section class="section" id="pathway">
+      <div class="wrap">
+        <p class="kicker">Pathway / Divisions</p>
+        <h2>The girls’ pathway</h2>
+        <p class="intro">These are the female and mixed entry points as named by the club. This page does not invent further year-group teams. Individual year groups are to be confirmed by the club.</p>
+        <div class="pathway">
+          <article class="pathway-step">
+            <div class="n">01</div>
+            <h3>MiniRoo U8 – U12</h3>
+            <p>A mixed program, open to girls in these age groups. First steps in club football, with an emphasis on enjoyment and the basics.</p>
+            <span class="badge">Mixed</span>
+          </article>
+          <article class="pathway-step">
+            <div class="n">02</div>
+            <h3>Girls U8 – U18</h3>
+            <p>The club’s girls’ pathway covering under-8 through under-18, as listed on the Hume City FC Join page.</p>
+          </article>
+          <article class="pathway-step">
+            <div class="n">03</div>
+            <h3>U16 Girls</h3>
+            <p>An under-16 girls side is listed on the club’s Team App. Please confirm this team and any other year groups with the club before publishing.</p>
+            <span class="badge badge-warn">To be confirmed</span>
+          </article>
+          <article class="pathway-step">
+            <div class="n">04</div>
+            <h3>Senior Women</h3>
+            <p>The senior women’s team, playing in State League North-West 4.</p>
+            <span class="badge">State League NW 4</span>
+          </article>
+        </div>
+        <p class="note">Source for program names: the club’s public Join page (humecityfc.com/join), plus the Hume City U16 Girls Team App listing, which should be confirmed.</p>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="staff">
+      <div class="wrap">
+        <p class="kicker">People</p>
+        <h2>Coaching staff and technical directors</h2>
+        <p class="intro">Replace every bracketed name, bio and qualification with the club’s real staff details. No real names have been used here.</p>
+        <div class="grid-3">
+          <article class="card staff-card">
+            <div class="avatar-ph" aria-hidden="true">TD</div>
+            <h3>[Coach name]</h3>
+            <p class="role">Technical Director</p>
+            <p class="bio">[Short bio: how this role sets the coaching philosophy, supports coaches across the girls’ pathway, and reviews player development. Two or three sentences to be supplied by the club.]</p>
+            <div class="qual">
+              <span class="badge">[Coaching qualification]</span>
+              <span class="badge">[Safeguarding certificate]</span>
+            </div>
+          </article>
+          <article class="card staff-card">
+            <div class="avatar-ph" aria-hidden="true">HC</div>
+            <h3>[Coach name]</h3>
+            <p class="role">Head Coach, Girls Program</p>
+            <p class="bio">[Short bio: weekly session design, how players move through the girls’ pathway, and the link between training and matchday. To be supplied by the club.]</p>
+            <div class="qual">
+              <span class="badge">[Coaching qualification]</span>
+              <span class="badge">[First aid]</span>
+            </div>
+          </article>
+          <article class="card staff-card">
+            <div class="avatar-ph" aria-hidden="true">SW</div>
+            <h3>[Coach name]</h3>
+            <p class="role">Senior Women Coach</p>
+            <p class="bio">[Short bio: senior training standards, match preparation, and how senior players mentor younger girls. To be supplied by the club.]</p>
+            <div class="qual">
+              <span class="badge">[Coaching qualification]</span>
+            </div>
+          </article>
+          <article class="card staff-card">
+            <div class="avatar-ph" aria-hidden="true">AC</div>
+            <h3>[Coach name]</h3>
+            <p class="role">Assistant Coach</p>
+            <p class="bio">[Short bio: support in training, small-group work, and matchday roles. To be supplied by the club.]</p>
+            <div class="qual">
+              <span class="badge">[Coaching qualification]</span>
+            </div>
+          </article>
+          <article class="card staff-card">
+            <div class="avatar-ph" aria-hidden="true">GK</div>
+            <h3>[Coach name]</h3>
+            <p class="role">Goalkeeper Coach</p>
+            <p class="bio">[Short bio: specialist goalkeeper work across age groups, and how this sits alongside team sessions. To be supplied by the club.]</p>
+            <div class="qual">
+              <span class="badge">[Coaching qualification]</span>
+              <span class="badge">[Goalkeeping certificate]</span>
+            </div>
+          </article>
+          <article class="card staff-card">
+            <div class="avatar-ph" aria-hidden="true">DV</div>
+            <h3>[Coach name]</h3>
+            <p class="role">Development Coach</p>
+            <p class="bio">[Short bio: player development plans, feedback to families, and the step up between MiniRoo, youth and senior football. To be supplied by the club.]</p>
+            <div class="qual">
+              <span class="badge">[Youth coaching certificate]</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="training">
+      <div class="wrap">
+        <p class="kicker">Training</p>
+        <h2>Training, behind the scenes</h2>
+        <p class="intro">This section is about the planning work coaches do before anyone steps on the pitch. Times, days and pitch names are placeholders.</p>
+        <div class="grid-3" style="margin-bottom:1.6rem">
+          <article class="card">
+            <div class="photo-ph photo-ph--paper" role="img" aria-label="Photo: session planning (placeholder)">Photo: session planning<br>(placeholder)</div>
+            <h3>Session planning</h3>
+            <p>[Describe how coaches set a weekly theme, write session objectives, plan arrival activities, and review the previous match before the next training night.]</p>
+          </article>
+          <article class="card">
+            <div class="photo-ph photo-ph--paper" role="img" aria-label="Photo: player development (placeholder)">Photo: player development<br>(placeholder)</div>
+            <h3>Player development pathway</h3>
+            <p>[Describe how a player can move from MiniRoo U8 – U12 into Girls U8 – U18 and, where confirmed, U16 Girls, then toward Senior Women. Include how progress is reviewed with families.]</p>
+          </article>
+          <article class="card">
+            <div class="photo-ph photo-ph--paper" role="img" aria-label="Photo: coaching staff meeting (placeholder)">Photo: coaches’ meeting<br>(placeholder)</div>
+            <h3>How staff work together</h3>
+            <p>[Describe how the technical director and coaches share plans, watch sessions, and keep a consistent way of playing across the girls’ program.]</p>
+          </article>
+        </div>
+        <h3>Weekly training rhythm</h3>
+        <p class="intro">Replace the bracketed days, times and venues with the club’s real schedule.</p>
+        <div class="week-grid">
+          <div class="week-day off"><h3>Mon</h3><p>[Rest / optional recovery]</p></div>
+          <div class="week-day"><h3>Tue</h3><p>[Age group]<br>[Time]<br>[Pitch]</p></div>
+          <div class="week-day"><h3>Wed</h3><p>[Age group]<br>[Time]<br>[Pitch]</p></div>
+          <div class="week-day"><h3>Thu</h3><p>[Age group]<br>[Time]<br>[Pitch]</p></div>
+          <div class="week-day"><h3>Fri</h3><p>[Set-piece / optional]<br>[Time]</p></div>
+          <div class="week-day"><h3>Sat</h3><p>Matchday<br>[Kick-off]<br>[Home or away]</p></div>
+          <div class="week-day off"><h3>Sun</h3><p>[Rest / review]</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="matchday">
+      <div class="wrap">
+        <p class="kicker">Matchday</p>
+        <h2>Matchday, behind the scenes</h2>
+        <p class="intro">A generic matchday timeline for the club to edit. No real fixtures or opponents are listed here.</p>
+        <div class="grid-2">
+          <div>
+            <h3>Pre-match preparation</h3>
+            <p>[How the coaching staff set the team shape, share roles, check who is available, and brief players and families the day before a match.]</p>
+            <div class="photo-ph photo-ph--paper" style="margin:1rem 0" role="img" aria-label="Photo: pre-match warm-up (placeholder)">Photo: pre-match warm-up<br>(placeholder)</div>
+            <h3>Post-match review</h3>
+            <p>[How coaches review the match, give player feedback, note what to train next week, and follow up on any knocks or concerns.]</p>
+          </div>
+          <div class="card">
+            <h3>The matchday timeline</h3>
+            <ol class="timeline">
+              <li><strong>[Arrival time]</strong><div>Players and staff arrive. [Kit check, medical notes, welcome.]</div></li>
+              <li><strong>[Warm-up]</strong><div>[Activation, passing, unit work. Goalkeepers with the specialist coach.]</div></li>
+              <li><strong>[Team talk]</strong><div>[Roles, key messages, and how the team wants to play.]</div></li>
+              <li><strong>Kick-off</strong><div>[First half. Bench roles and communication.]</div></li>
+              <li><strong>Half-time</strong><div>[Short review, adjustments, and a drink.]</div></li>
+              <li><strong>Full-time</strong><div>[Handshake, cool-down, and a brief word to the group.]</div></li>
+              <li><strong>[Review]</strong><div>[Notes for the next training session and any follow-up with families.]</div></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="register">
+      <div class="wrap">
+        <p class="kicker">Join</p>
+        <h2>Register interest / join the girls’ program</h2>
+        <p class="intro">This form is a placeholder. It does not store submissions. You can use the mailto button to open a message to placeholder@example.com, which must be replaced with the club’s real address.</p>
+        <div class="grid-2">
+          <form class="card form" action="mailto:placeholder@example.com" method="get" enctype="text/plain">
+            <input type="hidden" name="subject" value="Girls Program interest (draft form)">
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="phone">Phone (optional)</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="[Phone number]">
+            </div>
+            <div class="field">
+              <label for="interest">I am interested as</label>
+              <select id="interest" name="interest">
+                <option>A player / parent or guardian</option>
+                <option>A volunteer</option>
+                <option>A coach</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="message">Message</label>
+              <textarea id="message" name="body" placeholder="[Tell us the player’s age group, or how you would like to help.]"></textarea>
+            </div>
+            <p class="help">This form is a placeholder and does not send messages automatically. It will try to open your email program.</p>
+            <button class="btn" type="submit">Register interest</button>
+          </form>
+          <div>
+            <div class="card" style="margin-bottom:1rem">
+              <h3>Volunteer or coach with us</h3>
+              <p>[A short invitation for volunteers, team managers and coaches who would like to support the girls’ program. Include any working-with-children requirements the club wants to publish.]</p>
+              <p>Email <a href="mailto:placeholder@example.com">placeholder@example.com</a> with the subject “Volunteer / coach — Girls Program”.</p>
+            </div>
+            <div class="photo-ph photo-ph--paper" role="img" aria-label="Photo: families and volunteers (placeholder)">Photo: families and volunteers<br>(placeholder)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h2>Hume City Football Club</h2>
+        <p>Broadmeadows / Hume, Melbourne’s north.</p>
+        <p class="tiny">Placeholder crest used throughout — the official club logo has not been supplied and has not been copied.</p>
+      </div>
+      <div>
+        <h3>Programs</h3>
+        <p><a href="../site/index.html">Public home</a><br>
+        <a href="../girls/index.html">Girls Program</a><br>
+        Boys Program — coming soon</p>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>Email: <a href="mailto:placeholder@example.com">placeholder@example.com</a><br>
+        Phone: [Phone number]<br>
+        Ground: [Venue / ground]</p>
+      </div>
+    </div>
+    <div class="wrap legal">
+      <p>Draft website prepared for Hume City FC by Trump Technology &amp; Engineering. All staff names, photos, fixtures and contact details are placeholders and must be replaced by the club. This prototype is not published.</p>
+          <div class="built-by"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICAYAAAA+hf0SAAADWUlEQVR42u2dvWscRxiHn3f2VrHPZ9BXZUIKV8FuXZlUCSRdOqWPG6e6xpA2USsSDBIEXPgfkBpDKoPLBFykjARx4yIQUsg28uVO4m533hR3si6SHe5jOPlWv6c52F3Y/c08+85+cQNCiIuLnV7grGVww6of/aYbX5X9zNsZ7F6AzHtu7JTSXpytAM5aZuyUvrrZxOqfEDslWFa9yF4S6hmx85u9aG4A+Mrmt4T6rcpn9s4vtt/cPO5rgNrJRsdl3z/DGl8SHAgVdD6C1cEOV4CN/mlgX2D1T6uduQHe/gDYHB7ia28pCi28XeBHxdvXzz0FWA38YOgMOcA7Fc8camCt0yvOhnUP2JvlVWyM41zDpT4bylrdzO5nyltAXGgkgAQQEkBIACEBxAXk7C2PUQK9/r2je7r92BTP2r2XLrIVgAPDz8Tft8wOXiTPbJQjPAewRbKrOU6erEDEw37bMkl7GIRGnq4xYo5dgbKzNLRwidDIcUuYuTPwapLMwQj1xJmvQtFe/D8B4uD3IWXrKdaJ+LStYQbuOHcI+XW8iKMPO+5YZnh8TWz9ABbTnAxEYgyYPRs6zJ8oW0+wowSZ3cAc+AbLPxw/c82IxQviP/fTFQAikQDsnuprZvIK1Fe3HmOXP8fHetkSsVrAe3/afvOjeRtbfXXrV+zSbfxwzMx5wLt/2H7z43O5Bui/G3+VqA4uZNAtobfQH3Ynu1B1frwMjQL+MriWaIxeiv/9HiBV5qMAlyJ084kzOzXnQZ6+u08yv1OAwQZJPhpwtqPxdelsTdlpr3vGvcIHY0rqZkmb+btgrMcpM7txtzeLCqDbQD0HEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAYQEEBJASAAhAcQ5MqtZMkv6U7aWjP5v38cTLczpdOc+eWabXeYZCeCLWL3W39+oRcfBcogHy/MpgA0y25iZFyB2lysiwO7AfPsZbz8nHkYIYeSzIXQD5i9hz+en4793WAf8Ed7+nXg0ZuZeAP7W4CRmU6dmMgCwncGuTX6Q68W8Nex0mW/66aldhBAiPf8CIoMgCZtb1o8AAAAASUVORK5CYII=" width="36" height="20" alt="Trump Technology &amp; Engineering mark"><span><span class="built-by-label">Built by</span><span class="built-by-name">Trump Technology &amp; Engineering</span></span></div>
+    </div>
+  </footer>
+  <script>
+(function () {
+  var toggle = document.querySelector(".nav-toggle");
+  var nav = document.getElementById("site-nav");
+  if (!toggle || !nav) return;
+  toggle.addEventListener("click", function () {
+    var open = nav.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "Close" : "Menu";
+  });
+})();
+
+  </script>
+</body>
+</html>
