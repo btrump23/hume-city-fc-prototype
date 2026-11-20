@@ -27,6 +27,7 @@
     return (db.settings && db.settings.technicalDirector) || { name:"Ozzi", role:"Technical Director", email:"td@humecityfc.com" };
   }
   function tdLabel(){ var x=td(); return x.name+" ("+x.role+")"; }
+  function coachAvatar(id,size){ var m={"coach-ozzi":"ozzi","coach-selena":"selena","coach-david":"david"}[id]; size=size||32; return m?'<img class="coach-avatar" src="../assets/coaches/'+m+'.jpg" width="'+size+'" height="'+size+'" alt="">':""; }
   function clubCoaches(){ return (db.settings && db.settings.coaches) || []; }
   function policiesNote(){ return (db.settings && db.settings.policiesNote) || "Club policies are on the club's Team App, under the Documents tab."; }
   function clubBar(){
@@ -115,7 +116,7 @@
       '<header class="coach-top"><div class="wrap-wide"><div class="coach-top-inner">'+
       '<a class="brand" href="../index.html"><img src="'+crestSrc()+'" width="36" height="44" alt="Placeholder crest"><span><span class="brand-name">Coach Dashboard</span><span class="brand-tag">Placeholder crest · '+esc(t.name)+'</span></span></a>'+
       '<div class="header-switches">'+'<a class="btn btn-small home-link" href="../index.html">&larr; Back to Home</a>'+
-      '<label class="team-switch">Signed in as coach <select id="coach-switch">'+coachOpts+'</select></label>'+
+      coachAvatar(coach.id,40)+'<label class="team-switch">Signed in as coach <select id="coach-switch">'+coachOpts+'</select></label>'+
       '<label class="team-switch">Team <select id="team-switch"'+(teamLocked?" disabled":"")+'>'+opts+'</select></label>'+
       builtBy("built-by--header")+
       '</div>'+
@@ -1277,7 +1278,7 @@
     var coachRows=(clubCoaches()||[]).map(function(c){
       var tm=(db.teams||[]).filter(function(x){ return x.id===c.teamId; })[0];
       var scope=c.canViewAll?"All teams":(tm?tm.name:"—");
-      return "<tr><td>"+esc(c.name)+"</td><td>"+esc(c.role)+"</td><td>"+esc(scope)+"</td><td>"+esc(c.email)+" <span class=\"help\">(placeholder)</span></td><td>"+esc(c.phone)+"</td></tr>";
+      return "<tr><td>"+coachAvatar(c.id,32)+esc(c.name)+"</td><td>"+esc(c.role)+"</td><td>"+esc(scope)+"</td><td>"+esc(c.email)+" <span class=\"help\">(placeholder)</span></td><td>"+esc(c.phone)+"</td></tr>";
     }).join("");
     var testRows=(testsList()||[]).map(function(t){
       return '<tr><td><input data-act="test-meta" data-id="'+t.id+'" data-k="name" value="'+esc(t.name)+'"></td>'+

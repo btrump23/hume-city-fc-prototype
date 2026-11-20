@@ -415,3 +415,7 @@ body.coach .home-link:hover { background:#fff; color:#111 !important; }
 .coach-top-inner { justify-content: space-between; }
 .header-switches { margin-left: auto; justify-content: flex-end; }
 .header-switches .home-link { order: 99; margin-left: auto; }
+
+/* Coach superhero avatars */
+.coach-avatar { border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:0 0 0 2px var(--red,#C8102E); vertical-align:middle; margin-right:0.45rem; flex:none; }
+.header-switches .coach-avatar { width:40px; height:40px; }
