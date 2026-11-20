@@ -82,6 +82,7 @@
       { id: "coach-ozzi", name: "Ozzi", role: "Technical Director", email: "td@humecityfc.com", phone: "[Phone number]", teamId: "", canViewAll: true },
       { id: "coach-selena", name: "Selena", role: "Under 9 girls coach", email: "coach.u9girls@example.com", phone: "[Phone number]", teamId: "t-u9", canViewAll: false },
       { id: "coach-david", name: "David Crisp", role: "Under 14s coach", email: "coach.u14s@example.com", phone: "[Phone number]", teamId: "t-u14", canViewAll: false },
+      { id: "coach-hakan", name: "Hakan Dogan", role: "Under 14s assistant coach", email: "assistant.u14s@example.com", phone: "[Phone number]", teamId: "t-u14", canViewAll: false },
       { id: "coach-girls", name: "Sample Coach A", role: "Girls U8-U18 coach", email: "coach.girls@example.com", phone: "[Phone number]", teamId: "t-girls", canViewAll: false },
       { id: "coach-u16", name: "Sample Coach B", role: "U16 Girls coach", email: "coach.u16@example.com", phone: "[Phone number]", teamId: "t-u16", canViewAll: false },
       { id: "coach-senior", name: "Sample Coach C", role: "Senior Women coach", email: "coach.senior@example.com", phone: "[Phone number]", teamId: "t-senior", canViewAll: false },
