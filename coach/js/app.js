@@ -7,7 +7,7 @@
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }
   function builtBy(mod){
-    return '<div class="built-by'+(mod?" "+mod:"")+'"><img src="'+tteSrc()+'" width="36" height="20" alt="Trump Technology &amp; Engineering mark"><span><span class="built-by-label">Built by</span><span class="built-by-name">Trump Technology &amp; Engineering</span></span></div>';
+    return '<a class="built-by'+(mod?" "+mod:"")+'" href="https://trump.tech" target="_blank" rel="noopener" title="Trump Technology &amp; Engineering, trump.tech"><img src="'+tteSrc()+'" width="36" height="20" alt="Trump Technology &amp; Engineering mark"><span><span class="built-by-label">Built by</span><span class="built-by-name">Trump Technology &amp; Engineering</span></span></a>';
   }
   function esc(s) {
     return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
