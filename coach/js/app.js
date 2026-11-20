@@ -2,7 +2,7 @@
 (function () {
   var db = HCFC.load();
   var state = { tab: "roster", q: "", tracking: "all", medFlagged: false, toast: "", modal: null, taskSetId: null, assessView: "grid", assessPeriodId: null, assessPlayerId: null };
-  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Captain & Fruit Roster"],["training","Training Plan"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"],["fees","Fees & Uniform"]];
+  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Captain & Fruit Roster"],["training","Training Plan"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["fees","Fees & Uniform"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
 
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }
@@ -109,7 +109,7 @@
     var opts=db.teams.map(function(x){ return '<option value="'+esc(x.id)+'"'+(x.id===teamId()?" selected":"")+'>'+esc(x.name)+'</option>'; }).join("");
     var tabs=TABS.map(function(pair){
       var extra=pair[0]==="medical"&&follow?' <span class="badge badge-bad">'+follow+'</span>':"";
-      return '<button type="button" data-act="tab" data-tab="'+pair[0]+'"'+(state.tab===pair[0]?' class="is-active" aria-current="page"':"")+'>'+pair[1]+extra+'</button>';
+      return '<button type="button" data-act="tab" data-tab="'+pair[0]+'"'+(state.tab===pair[0]?' class="is-active" aria-current="page"':"")+'>'+pair[1]+extra+'</button>'+(pair[0]==="fees"?'<span class="tab-break" aria-hidden="true"></span>':"");
     }).join("");
     return '<div class="app-shell">'+
       '<div class="draft-banner"><strong>Temporary prototype — sample data.</strong> Do not enter real player or medical details. No sign-in is required. <a href="../index.html">Prototype hub</a>'+(HCFC.storageAvailable&&HCFC.storageAvailable()?'':' <strong>This browser could not save data, so the sample set is in memory only for this session.</strong>')+'</div>'+
@@ -122,7 +122,7 @@
       '</div>'+
       '</div><p class="help scope-note">Prototype scoping only — this is not a real login. A named coach sees only their own team. Ozzi (Technical Director) can view every team.</p>'+
       '<nav class="tabbar" aria-label="Coach sections">'+tabs+'</nav></div></header>'+
-      '<main class="coach-main" id="main"><div class="wrap-wide">'+clubBar()+inner+'</div></main>'+
+      '<main class="coach-main" id="main"><div class="wrap-wide">'+clubBar()+todoPanel()+inner+'</div></main>'+
       '<footer class="coach-foot"><div class="wrap-wide">'+builtBy("")+'</div></footer>'+
       (state.toast?'<div class="draft-banner" role="status">'+esc(state.toast)+'</div>':"")+
       (state.modal?'<div class="modal-back" data-act="backdrop"><div class="modal" role="dialog" aria-modal="true">'+state.modal+'</div></div>':"")+
@@ -364,6 +364,32 @@
     return pageHead("Training Plan","A 13-week skills block for youth football. Suggested sessions of 60–75 minutes: warm-up, skill, game, cool-down. Sample content. Adapt it to your squad and club guidelines.",sel)+
       '<div class="stats">'+stat(n+" / 13","Weeks completed ("+team().name+")")+stat("60–75 min","Suggested session")+stat("4 parts","Warm-up · skill · game · cool-down")+"</div>"+
       '<div class="plan-grid">'+rows+"</div>";
+  }
+  function isTD(){ var c=currentCoach()||{}; return !!c.canViewAll; }
+  function coachName(id){ var c=clubCoaches().filter(function(x){ return x.id===id; })[0]; return c?c.name:"Unassigned"; }
+  function todoPanel(){
+    if(!db.coachTodos){ db.coachTodos=[{id:"todo-s1",text:"Upload Week 1 attendance (sample task)",assigneeId:"coach-selena",done:false,doneAt:"",seenByTD:true},{id:"todo-s2",text:"Confirm U14 fruit roster for next 4 weeks (sample task)",assigneeId:"coach-david",done:false,doneAt:"",seenByTD:true}]; persist(); }
+    var me=currentCoach()||{}, td=isTD();
+    var items=td?db.coachTodos:db.coachTodos.filter(function(t){ return t.assigneeId===me.id; });
+    var open=items.filter(function(t){ return !t.done; }).length;
+    var alerts=td?db.coachTodos.filter(function(t){ return t.done && !t.seenByTD; }):[];
+    var others=clubCoaches().filter(function(c){ return !c.canViewAll; });
+    function whoOpts(sel){ return others.map(function(c){ return '<option value="'+esc(c.id)+'"'+(c.id===sel?" selected":"")+">"+esc(c.name)+"</option>"; }).join(""); }
+    var rows=items.map(function(t){
+      var canTick=td||t.assigneeId===me.id;
+      return '<li class="todo-item'+(t.done?" is-done":"")+'">'+
+        '<input type="checkbox" class="todo-done" data-id="'+t.id+'"'+(t.done?" checked":"")+(canTick?"":" disabled")+' aria-label="Mark done">'+
+        (td?'<input class="todo-text" data-id="'+t.id+'" value="'+esc(t.text)+'" aria-label="Task">'+
+            '<select class="todo-who" data-id="'+t.id+'" aria-label="Assigned to">'+whoOpts(t.assigneeId)+'</select>'+
+            '<button type="button" class="btn btn-ghost btn-small" data-act="todo-del" data-id="'+t.id+'" aria-label="Delete task">✕</button>'
+          :'<span class="todo-label">'+esc(t.text)+'</span><span class="help">from Ozzi</span>')+
+        (t.done&&t.doneAt?'<span class="help todo-when">done '+esc(fmtDate(t.doneAt))+'</span>':"")+
+        "</li>";
+    }).join("")||'<li class="help">No to-dos yet.</li>';
+    var alertHtml=alerts.length?'<div class="todo-alert" role="status">🔔 '+alerts.map(function(t){ return "<strong>"+esc(coachName(t.assigneeId))+"</strong> completed “"+esc(t.text)+"”"; }).join(" · ")+' <button type="button" class="btn btn-small" data-act="todo-dismiss">Got it</button></div>':"";
+    var add=td?'<div class="todo-add"><input id="todo-new-text" placeholder="New task for a coach…" aria-label="New task"><select id="todo-new-who" aria-label="Assign to">'+whoOpts("")+'</select><button type="button" class="btn btn-small" data-act="todo-add">Add</button></div>':"";
+    return '<details class="todo-panel"'+(state.todoOpen||alerts.length?" open":"")+'><summary>'+(td?"Coach to-dos":"My to-dos from Ozzi")+' <span class="badge">'+open+' open</span>'+(alerts.length?' <span class="badge badge-bad">'+alerts.length+' new done</span>':"")+'</summary>'+
+      alertHtml+'<ul class="todo-list">'+rows+"</ul>"+add+"</details>";
   }
   function viewDuties(){
     var players=teamPlayers();
@@ -1412,6 +1438,8 @@
     reader.readAsText(file);
   }
   function onDomChange(e){
+    if(e.target && e.target.classList && e.target.classList.contains("todo-done")){ var tdi=(db.coachTodos||[]).filter(function(x){ return x.id===e.target.getAttribute("data-id"); })[0]; if(tdi){ tdi.done=e.target.checked; tdi.doneAt=tdi.done?new Date().toISOString().slice(0,10):""; tdi.seenByTD=tdi.done?isTD():true; persist(); if(tdi.done&&!isTD()) toast("Done. Ozzi has been notified."); state.todoOpen=true; render(); } return; }
+    if(e.target && e.target.classList && (e.target.classList.contains("todo-text")||e.target.classList.contains("todo-who"))){ var tde=(db.coachTodos||[]).filter(function(x){ return x.id===e.target.getAttribute("data-id"); })[0]; if(tde&&isTD()){ if(e.target.classList.contains("todo-text")) tde.text=e.target.value; else tde.assigneeId=e.target.value; persist(); state.todoOpen=true; render(); } return; }
     if(e.target && e.target.id==="plan-age"){ state.planAge=e.target.value; render(); return; }
     if(e.target && e.target.classList && e.target.classList.contains("plan-done")){ db.trainingDone=db.trainingDone||{}; var tdk=teamId(); db.trainingDone[tdk]=db.trainingDone[tdk]||{}; db.trainingDone[tdk][e.target.getAttribute("data-week")]=e.target.checked; persist(); render(); return; }
     if(e.target && e.target.id==="team-switch"){ db.currentTeamId=e.target.value; persist(); render(); return; }
@@ -1462,6 +1490,9 @@
     if(act==="tab"){ state.tab=btn.getAttribute("data-tab"); state.modal=null; render(); }
     else if(act==="duty-autofill"){ dutyAutofill(false); render(); toast("Rotation filled for the next 8 weeks."); }
     else if(act==="duty-clear"){ if(confirm("Clear the captain and fruit roster for this team?")){ db.duties=(db.duties||[]).filter(function(x){ return x.teamId!==teamId(); }); db.duties.push({teamId:teamId(),week:"cleared",captainId:"",fruitId:"",notes:""}); persist(); render(); } }
+    else if(act==="todo-add"){ if(!isTD()) return; var tx=document.getElementById("todo-new-text"), tw=document.getElementById("todo-new-who"); var txt=tx&&tx.value.trim(); if(!txt){ toast("Type a task first."); return; } db.coachTodos=db.coachTodos||[]; db.coachTodos.push({id:"todo-"+Date.now(), text:txt, assigneeId:tw?tw.value:"", done:false, doneAt:"", seenByTD:true}); persist(); state.todoOpen=true; render(); }
+    else if(act==="todo-del"){ if(!isTD()) return; db.coachTodos=(db.coachTodos||[]).filter(function(x){ return x.id!==id; }); persist(); state.todoOpen=true; render(); }
+    else if(act==="todo-dismiss"){ (db.coachTodos||[]).forEach(function(x){ if(x.done) x.seenByTD=true; }); persist(); state.todoOpen=true; render(); }
     else if(act==="assess-view"){ state.assessView=btn.getAttribute("data-view"); render(); }
     else if(act==="print-card"){ printReportCard(); }
     else if(act==="dl-card"){

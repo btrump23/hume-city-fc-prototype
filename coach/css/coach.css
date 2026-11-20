@@ -431,3 +431,17 @@ body.coach .home-link:hover { background:#fff; color:#111 !important; }
 .plan-col h4 { margin:0.3rem 0; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.04em; }
 .plan-col ul { margin:0; padding-left:1.1rem; }
 .plan-check { font-weight:700; white-space:nowrap; }
+
+/* Coach to-dos */
+.todo-panel { background:#fff; border:1px solid var(--line,#ddd); border-left:4px solid var(--red,#C8102E); border-radius:10px; padding:0.35rem 0.75rem; margin:0 0 0.9rem; font-size:0.9rem; color:#1a1a1a; }
+.todo-panel summary { cursor:pointer; font-weight:700; padding:0.2rem 0; }
+.todo-list { list-style:none; margin:0.3rem 0; padding:0; display:grid; gap:0.3rem; }
+.todo-item { display:flex; flex-wrap:wrap; align-items:center; gap:0.4rem; }
+.todo-item.is-done .todo-label, .todo-item.is-done .todo-text { text-decoration:line-through; opacity:0.6; }
+.todo-text { flex:1 1 12rem; font:inherit; padding:0.2rem 0.4rem; border:1px solid var(--line,#ddd); border-radius:6px; }
+.todo-label { flex:1 1 12rem; }
+.todo-who, .todo-add select, .todo-add input { font:inherit; padding:0.2rem 0.4rem; border:1px solid var(--line,#ddd); border-radius:6px; }
+.todo-add { display:flex; flex-wrap:wrap; gap:0.4rem; margin:0.3rem 0 0.2rem; }
+.todo-add input { flex:1 1 12rem; }
+.todo-alert { background:#FFF6D8; border-radius:8px; padding:0.4rem 0.6rem; margin:0.3rem 0; }
+.tabbar .tab-break { flex-basis:100%; height:0; }
