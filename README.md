@@ -83,7 +83,7 @@ Location: `coach/index.html` (self-contained; CSS and JS are also kept as source
 - Hidden from the public nav  
 - `<meta name="robots" content="noindex, nofollow">` and `robots.txt` Disallow for `/coach/`  
 - No sign-in gate. The dashboard opens straight onto sample data. If the browser cannot use localStorage, the sample set is kept in memory for that session.  
-- “Signed in as coach” selector (prototype scoping only, not real security): Selena sees U9 Girls, David Crisp and assistant coach Hakan Dogan see the Under 14s, Ozzi (Technical Director) can view every team. Other sample coaches are placeholders.  
+- “Signed in as coach” selector (prototype scoping only, not real security): Selena sees U9 Girls, David Crisp and assistant coach Hakan Dogan see the Under 14s, Ozzi (Technical Director, also coaches Senior Women) can view every team. Other sample coaches are placeholders.  
 - Team switcher: U9 Girls, Girls U8 - U18, Under 14s, U16 Girls, Senior Women, MiniRoo U8 - U12  
 - Tabs (usable on a phone): Roster, Tracking, Assessment, Fitness, Tasks, Medical, Matches, Fixtures, Sessions, Equipment, Comms, Reports, Settings  
 
