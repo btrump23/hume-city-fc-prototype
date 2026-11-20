@@ -1575,7 +1575,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
 (function () {
   var db = HCFC.load();
   var state = { tab: "roster", q: "", tracking: "all", medFlagged: false, toast: "", modal: null, taskSetId: null, assessView: "grid", assessPeriodId: null, assessPlayerId: null };
-  var TABS = [["roster","Roster"],["tracking","Tracking"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
+  var TABS = [["roster","Roster"],["tracking","Tracking"],["fees","Fees & Uniform"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
 
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }
@@ -1805,6 +1805,43 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
       '<div class="table-wrap"><table class="data"><thead><tr><th>Player / attendance</th>'+sessHead+"<th>Fees</th><th>Order</th><th>Collection</th><th>Size</th></tr></thead><tbody>"+
       (rows||"<tr><td>No players.</td></tr>")+"</tbody></table></div>"+
       '<p class="help">P = present, A = absent. Session types are Training or Match. Size list is configurable in Settings.</p>';
+  }
+
+  function viewFeesUniform(){
+    var list=teamPlayers();
+    var fstate=state.feesFilter||"all";
+    var paid=list.filter(function(p){ return p.feeStatus==="Paid"; }).length;
+    var unpaid=list.filter(function(p){ return p.feeStatus==="Unpaid"; }).length;
+    var part=list.filter(function(p){ return p.feeStatus==="Part paid"; }).length;
+    var ordered=list.filter(function(p){ return p.uniformOrder!=="Not ordered"; }).length;
+    var awaitU=list.filter(function(p){ return p.uniformOrder==="Arrived" && p.uniformCollection!=="Collected"; }).length;
+    var collected=list.filter(function(p){ return p.uniformCollection==="Collected"; }).length;
+    var filtered=list.filter(function(p){
+      if(fstate==="unpaid") return p.feeStatus==="Unpaid";
+      if(fstate==="part") return p.feeStatus==="Part paid";
+      if(fstate==="paid") return p.feeStatus==="Paid";
+      if(fstate==="outstanding") return p.feeStatus!=="Paid";
+      if(fstate==="uniform") return p.uniformCollection!=="Collected";
+      return true;
+    });
+    var rows=filtered.map(function(p){
+      return "<tr><td><strong>"+esc(p.name)+"</strong></td>"+
+        '<td><select data-act="field" data-id="'+p.id+'" data-k="feeStatus"><option>Unpaid</option><option'+(p.feeStatus==="Part paid"?" selected":"")+">Part paid</option><option"+(p.feeStatus==="Paid"?" selected":"")+">Paid</option></select></td>"+
+        '<td><input data-act="field" data-id="'+p.id+'" data-k="feeAmount" type="number" style="width:6rem" value="'+esc(p.feeAmount)+'"></td>'+
+        '<td><input data-act="field" data-id="'+p.id+'" data-k="feeDate" type="date" value="'+esc(p.feeDate)+'"></td>'+
+        '<td><select data-act="field" data-id="'+p.id+'" data-k="uniformOrder"><option>Not ordered</option><option'+(p.uniformOrder==="Ordered"?" selected":"")+">Ordered</option><option"+(p.uniformOrder==="Arrived"?" selected":"")+">Arrived</option></select></td>"+
+        "<td><select data-act=\"field\" data-id=\""+p.id+"\" data-k=\"uniformSize\">"+
+        db.settings.uniformSizes.map(function(s){ return "<option"+(p.uniformSize===s?" selected":"")+">"+esc(s)+"</option>"; }).join("")+"</select></td>"+
+        '<td><select data-act="field" data-id="'+p.id+'" data-k="uniformCollection"><option>Not collected</option><option'+(p.uniformCollection==="Collected"?" selected":"")+">Collected</option></select></td></tr>";
+    }).join("");
+    return pageHead("Fees & Uniform","Membership fees and uniform orders for this team. Sample data only.")+
+      '<div class="stats">'+stat(paid+"/"+list.length,"Fees paid")+stat(part,"Part paid")+stat(unpaid,"Unpaid")+stat(ordered,"Uniforms ordered")+stat(awaitU,"Awaiting collection")+stat(collected,"Collected")+"</div>"+
+      '<div class="filters"><label>Filter <select id="fees-filter">'+
+      opt("all","All players",fstate)+opt("outstanding","Fees outstanding (unpaid or part paid)",fstate)+opt("unpaid","Unpaid",fstate)+opt("part","Part paid",fstate)+opt("paid","Paid",fstate)+
+      opt("uniform","Uniform not collected",fstate)+"</select></label></div>"+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Player</th><th>Fee status</th><th>Amount ($)</th><th>Date paid</th><th>Uniform order</th><th>Size</th><th>Collection</th></tr></thead><tbody>'+
+      (rows||"<tr><td colspan='7'>No players match this filter.</td></tr>")+"</tbody></table></div>"+
+      '<p class="help">Changes here also show in the Tracking tab, as both use the same player records. Size list is configurable in Settings.</p>';
   }
 
   function currentCoach(){
@@ -2797,7 +2834,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
 
   function render(keepModal){
     document.body.className="coach";
-    var view={ roster:viewRoster, tracking:viewTracking, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
+    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
     document.getElementById("app").innerHTML=shell(view());
     bind();
   }
@@ -2829,6 +2866,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
     if(e.target && e.target.id==="assess-player"){ state.assessPlayerId=e.target.value; render(); return; }
     if(e.target && e.target.id==="search"){ state.q=e.target.value; if(e.type==="change") render(); return; }
     if(e.target && e.target.id==="track-filter"){ state.tracking=e.target.value; render(); return; }
+    if(e.target && e.target.id==="fees-filter"){ state.feesFilter=e.target.value; render(); return; }
     if(e.target && e.target.id==="task-set-switch"){ state.taskSetId=e.target.value; render(); return; }
     if(e.target && e.target.id==="med-flag"){ state.medFlagged=e.target.checked; render(); return; }
     if(e.target && e.target.id==="import-roster" && e.target.files && e.target.files[0]) importRosterFile(e.target.files[0]);
