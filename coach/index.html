@@ -984,6 +984,11 @@ body.coach .built-by--header {
   body.coach .built-by--header { margin-left: 0; max-width: none; width: 100%; }
 }
 
+
+/* Tabs wrap onto extra rows instead of scrolling sideways */
+.tabbar { flex-wrap: wrap; overflow-x: visible; row-gap: 0.3rem; }
+.tabbar button { flex: 0 1 auto; font-size: 0.86rem; padding: 0.4rem 0.62rem; }
+@media (max-width: 720px) { .tabbar button { font-size: 0.8rem; padding: 0.35rem 0.5rem; } }
   </style>
 </head>
 <body class="coach">
@@ -1577,7 +1582,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
 (function () {
   var db = HCFC.load();
   var state = { tab: "roster", q: "", tracking: "all", medFlagged: false, toast: "", modal: null, taskSetId: null, assessView: "grid", assessPeriodId: null, assessPlayerId: null };
-  var TABS = [["roster","Roster"],["tracking","Tracking"],["fees","Fees & Uniform"],["duties","Captain & Fruit Roster"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
+  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Captain & Fruit Roster"],["fees","Fees & Uniform"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
 
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }

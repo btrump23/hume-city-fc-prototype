@@ -405,3 +405,8 @@ body.coach .built-by--header {
 }
 body.coach .home-link, .home-link { background:var(--red,#E10600); color:#fff !important; border:2px solid #fff; font-weight:700; text-decoration:none; }
 body.coach .home-link:hover { background:#fff; color:#111 !important; }
+
+/* Tabs wrap onto extra rows instead of scrolling sideways */
+.tabbar { flex-wrap: wrap; overflow-x: visible; row-gap: 0.3rem; }
+.tabbar button { flex: 0 1 auto; font-size: 0.86rem; padding: 0.4rem 0.62rem; }
+@media (max-width: 720px) { .tabbar button { font-size: 0.8rem; padding: 0.35rem 0.5rem; } }
