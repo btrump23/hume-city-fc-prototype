@@ -410,3 +410,8 @@ body.coach .home-link:hover { background:#fff; color:#111 !important; }
 .tabbar { flex-wrap: wrap; overflow-x: visible; row-gap: 0.3rem; }
 .tabbar button { flex: 0 1 auto; font-size: 0.86rem; padding: 0.4rem 0.62rem; }
 @media (max-width: 720px) { .tabbar button { font-size: 0.8rem; padding: 0.35rem 0.5rem; } }
+
+/* Back to Home sits on the right-hand side of the header */
+.coach-top-inner { justify-content: space-between; }
+.header-switches { margin-left: auto; justify-content: flex-end; }
+.header-switches .home-link { order: 99; margin-left: auto; }
