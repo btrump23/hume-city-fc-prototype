@@ -419,3 +419,15 @@ body.coach .home-link:hover { background:#fff; color:#111 !important; }
 /* Coach superhero avatars */
 .coach-avatar { border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:0 0 0 2px var(--red,#C8102E); vertical-align:middle; margin-right:0.45rem; flex:none; }
 .header-switches .coach-avatar { width:40px; height:40px; }
+
+/* Training Plan */
+.plan-grid { display:grid; gap:0.8rem; }
+.plan-week { padding:0.9rem 1rem; }
+.plan-week.is-done { opacity:0.75; border-left:4px solid var(--good,#1a7f37); }
+.plan-head { display:flex; flex-wrap:wrap; align-items:center; gap:0.6rem; }
+.plan-head h3 { margin:0; flex:1; }
+.plan-wk { background:var(--red,#C8102E); color:#fff; font-weight:700; border-radius:999px; padding:0.15rem 0.6rem; font-size:0.8rem; }
+.plan-cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:0.8rem; }
+.plan-col h4 { margin:0.3rem 0; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.04em; }
+.plan-col ul { margin:0; padding-left:1.1rem; }
+.plan-check { font-weight:700; white-space:nowrap; }

@@ -2,7 +2,7 @@
 (function () {
   var db = HCFC.load();
   var state = { tab: "roster", q: "", tracking: "all", medFlagged: false, toast: "", modal: null, taskSetId: null, assessView: "grid", assessPeriodId: null, assessPlayerId: null };
-  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Captain & Fruit Roster"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"],["fees","Fees & Uniform"]];
+  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Captain & Fruit Roster"],["training","Training Plan"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"],["fees","Fees & Uniform"]];
 
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }
@@ -292,6 +292,78 @@
       if(!onlyEmpty||!rec.fruitId) rec.fruitId=players[(i+Math.ceil(players.length/2))%players.length].id;
     });
     persist();
+  }
+  var TRAINING_PLAN = [
+    { w:1, focus:"Ball mastery & first touch", goal:"Comfort on the ball with both feet.",
+      u9:["Warm-up: 'Traffic lights' dribbling: green go, amber slow, red stop the ball with the sole","Every player with a ball in a grid: inside/outside taps, sole rolls, toe taps (30 s on / 30 s off)","Game: 'Sharks and minnows' 1–2 sharks try to knock balls out","Finish with 3v3 mini games, no goalkeepers"],
+      u14:["Rondo warm-up 4v1 to two touches","Receiving across the body: open hips, first touch out of feet into space","Pattern: pass, receive on back foot, turn and play forward through gates","Conditioned 5v5: a goal counts double if the scorer's first touch was forward"],
+      tips:["Lots of touches per player, keep queues short","Praise brave touches, not just clean ones","Coach: 'Look before it arrives'"] },
+    { w:2, focus:"Dribbling & running with the ball", goal:"Beat a player and travel into space at speed.",
+      u9:["Tag game with a ball at feet","Hero moves: teach one simple move (drag-back or step-over) and give it a fun name","1v1 to end-line gates","3v3 with 'dribble-in' goals (stop the ball on the line to score)"],
+      u14:["Speed dribble: big touches into space vs small touches in traffic","1v1 channels, attacker must commit the defender before the move","2v1 overloads: dribble or release?","6v6 with wide channels, 1v1 out wide is protected"],
+      tips:["Encourage risk-taking in the attacking third","Use the outside of the foot to change direction","Head up between touches"] },
+    { w:3, focus:"Passing: short & accurate", goal:"Pass with the inside of the foot, weight and direction.",
+      u9:["Partner passing through cone gates (score a point per gate)","'Pass and follow' in a square","Bowling: pass to knock over cones","4v4: must make 2 passes before scoring"],
+      u14:["Triangle passing with third-man run","Passing on the half-turn, play to the back foot","Possession 5v3 in a box, two-touch limit","7v7 with a scoring bonus after 5 consecutive passes"],
+      tips:["Lock the ankle, strike through the middle of the ball","Pass to the foot away from pressure","Talk: call names before passing"] },
+    { w:4, focus:"Shooting & finishing", goal:"Hit the target and finish from different angles.",
+      u9:["Target practice: shoot at cones/flags inside the goal","Dribble-and-shoot relay","1v1 to goal with a keeper","3v3 with small goals, lots of shots"],
+      u14:["Finishing from cut-backs and through balls","Laces technique: plant foot beside ball, body over it","2v1 to goal plus a recovering defender","Small-sided game on a short pitch (shots allowed from anywhere)"],
+      tips:["Accuracy before power","Follow in for rebounds","Celebrate every attempt, not just goals"] },
+    { w:5, focus:"Defending 1v1", goal:"Stay patient, stay on your feet, steer the attacker.",
+      u9:["'Shadow' game: follow a partner without the ball","Defend the line: stop the dribbler crossing the end line","1v1 in small channels","3v3 where a tackle-win = 1 point"],
+      u14:["Approach: close quickly, slow down, side-on stance","Show the attacker onto their weaker foot / down the line","1v1 to 1v2 recover-and-cover drill","6v6, defending team scores by winning the ball and dribbling over halfway"],
+      tips:["'Don't dive in'","Low centre of gravity, bent knees","Win the ball when it's away from the attacker's foot"] },
+    { w:6, focus:"Fitness through football", goal:"Build speed, agility and endurance with the ball.",
+      u9:["Agility ladder or cone zig-zags into a shot","Relay races with a ball","Freeze tag with a ball","3v3 continuous games with quick rotations"],
+      u14:["Dynamic warm-up and injury-prevention routine (e.g. FIFA 11+ style)","Repeated sprint relays with the ball","Box-to-box transition game 4v4 + 4","Short recovery-pace possession game"],
+      tips:["Keep the ball involved, no laps for punishment","Watch for fatigue and hydration in heat","Record a simple baseline (e.g. 20 m sprint) in the Fitness tab"] },
+    { w:7, focus:"Small-sided games & decision making", goal:"Read the game: when to pass, dribble or shoot.",
+      u9:["4v4 with 4 small goals","'Coach freeze' moments: ask 'where's the space?'","1v1, 2v2, 3v3 rotations","Free play to finish"],
+      u14:["5v5 + 2 neutral players","Game with directional and side goals to encourage switching play","Guided discovery questions at stoppages","Match-day style 8v8"],
+      tips:["Ask questions rather than give answers","Let the game be the teacher","Limit stoppages to 2–3 per game"] },
+    { w:8, focus:"Positioning & width/depth", goal:"Understand where to stand to help a team-mate.",
+      u9:["'Make a triangle' passing game","Ball in each half: find a free player","4v4 with end-zones (score by receiving in the zone)","Introduce simple positions: back, middle, front"],
+      u14:["Shape walk-through (e.g. 2-3-1 or 3-2-1 for small-sided formats)","Attack: create width and depth; defend: compact and narrow","Shadow play 7v0 then 7v4","Conditioned game: width channels for full-backs/wingers"],
+      tips:["Use cones or bibs to show shape","Keep it simple and visual","Rotate positions across the season"] },
+    { w:9, focus:"Heading & aerial control (age-appropriate)", goal:"Control a bouncing/aerial ball with feet, thigh and chest.",
+      u9:["NO heading at U9: focus on controlling high balls with feet and thigh","Throw-and-trap partner game","Juggling challenge (personal bests)","3v3 with throw-in restarts"],
+      u14:["Chest and thigh control drills","Light, limited heading technique only within current club/FA heading guidance","Volley and half-volley finishing","Small-sided game with cross-and-finish bonus"],
+      tips:["Follow Football Australia heading guidelines for each age group","Quality over quantity","Light, soft balls for technique work"] },
+    { w:10, focus:"Set pieces", goal:"Simple, rehearsed restarts.",
+      u9:["Kick-in / throw-in basics (feet behind line, two hands)","Goal kicks: play short to a team-mate","Fun corners: everyone attacks the ball","3v3 with restarts"],
+      u14:["Two corner routines (near post and back post)","Free kicks: wall drills and one simple routine","Defending set pieces: zonal or player marking roles","8v8 with set-piece scenarios"],
+      tips:["Keep routines to two or three max","Give every player a job","Rehearse at walking pace first"] },
+    { w:11, focus:"Transition: attack ↔ defence", goal:"React fast when the ball is won or lost.",
+      u9:["'Switch!' game: on the whistle, attackers become defenders","Win the ball, score in a mini goal","3v3 with a ball always ready on the side","Free game"],
+      u14:["5-second rule: counter-press immediately when you lose it","Counter-attack 3v2 after a turnover","Transition game 6v6 with counter goals","Reflect: what happened in the 5 seconds after we lost it?"],
+      tips:["First reaction matters most","Reward the player who wins it back","Talk: 'Turn!' / 'Press!'"] },
+    { w:12, focus:"Match tactics & team play", goal:"Put it together in a game plan.",
+      u9:["Fun pre-match routine practice","Scrimmage with everyone trying every position","Simple team talk: one thing to try","Skills showcase"],
+      u14:["Opposition-style game (press high vs sit deep)","Building from the back vs playing direct","Coach-led tactical scrimmage with stoppages","Player-led debrief"],
+      tips:["One or two messages only","Let captains lead part of the warm-up","Link back to the Matches tab notes"] },
+    { w:13, focus:"Review, assessment & fun festival", goal:"Celebrate progress and reassess.",
+      u9:["Skills circuit 'passport' with stamps","Mini tournament with mixed teams","Awards: everyone gets a positive mention","Parents' game (optional)"],
+      u14:["Re-test fitness and ball-skill tests (Assessment / Fitness tabs)","Player self-reflection: 2 strengths, 1 goal","Internal tournament","Plan goals for next block"],
+      tips:["Compare against each player's own baseline, not team-mates","Share progress via reports (never auto-sent)","Finish on fun"] }
+  ];
+  function planAgeDefault(){ var n=(team().name||""); if(/9/.test(n)) return "u9"; if(/14/.test(n)) return "u14"; return "both"; }
+  function viewTraining(){
+    db.trainingDone=db.trainingDone||{}; var done=db.trainingDone[teamId()]||{};
+    var age=state.planAge||planAgeDefault();
+    var n=TRAINING_PLAN.filter(function(x){ return done[x.w]; }).length;
+    var sel='<label class="help">Show drills for <select id="plan-age">'+[["both","U9 girls & U14s"],["u9","U9 girls"],["u14","U14s"]].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===age?" selected":"")+">"+o[1]+"</option>"; }).join("")+"</select></label>";
+    var rows=TRAINING_PLAN.map(function(x){
+      function list(a){ return "<ul>"+a.map(function(i){ return "<li>"+esc(i)+"</li>"; }).join("")+"</ul>"; }
+      var drills="";
+      if(age!=="u14") drills+='<div class="plan-col"><h4>U9 girls</h4>'+list(x.u9)+"</div>";
+      if(age!=="u9") drills+='<div class="plan-col"><h4>U14s</h4>'+list(x.u14)+"</div>";
+      return '<article class="card plan-week'+(done[x.w]?" is-done":"")+'"><div class="plan-head"><span class="plan-wk">Week '+x.w+'</span><h3>'+esc(x.focus)+'</h3><label class="plan-check"><input type="checkbox" class="plan-done" data-week="'+x.w+'"'+(done[x.w]?" checked":"")+"> Done</label></div>"+
+        '<p class="help"><strong>Goal:</strong> '+esc(x.goal)+'</p><div class="plan-cols">'+drills+'<div class="plan-col"><h4>Coaching tips</h4>'+list(x.tips)+"</div></div></article>";
+    }).join("");
+    return pageHead("Training Plan","A 13-week skills block for youth football. Suggested sessions of 60–75 minutes: warm-up, skill, game, cool-down. Sample content. Adapt it to your squad and club guidelines.",sel)+
+      '<div class="stats">'+stat(n+" / 13","Weeks completed ("+team().name+")")+stat("60–75 min","Suggested session")+stat("4 parts","Warm-up · skill · game · cool-down")+"</div>"+
+      '<div class="plan-grid">'+rows+"</div>";
   }
   function viewDuties(){
     var players=teamPlayers();
@@ -1316,7 +1388,7 @@
 
   function render(keepModal){
     document.body.className="coach";
-    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, duties:viewDuties, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
+    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, duties:viewDuties, training:viewTraining, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
     document.getElementById("app").innerHTML=shell(view());
     bind();
   }
@@ -1340,6 +1412,8 @@
     reader.readAsText(file);
   }
   function onDomChange(e){
+    if(e.target && e.target.id==="plan-age"){ state.planAge=e.target.value; render(); return; }
+    if(e.target && e.target.classList && e.target.classList.contains("plan-done")){ db.trainingDone=db.trainingDone||{}; var tdk=teamId(); db.trainingDone[tdk]=db.trainingDone[tdk]||{}; db.trainingDone[tdk][e.target.getAttribute("data-week")]=e.target.checked; persist(); render(); return; }
     if(e.target && e.target.id==="team-switch"){ db.currentTeamId=e.target.value; persist(); render(); return; }
     if(e.target && e.target.id==="coach-switch"){
       db.currentCoachId=e.target.value; applyCoachScope(); persist(); render(); return;
