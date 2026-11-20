@@ -1966,25 +1966,28 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
     var pid=assessPeriodId();
     var view=state.assessView||"grid";
     var periodOpts=periods.map(function(p){ return '<option value="'+p.id+'"'+(p.id===pid?" selected":"")+">"+esc(p.name)+"</option>"; }).join("");
-    var playerOpts=players.map(function(p){ return '<option value="'+p.id+'"'+(p.id===assessPlayerId()?" selected":"")+">"+esc(p.name)+"</option>"; }).join("");
+    var selAll=!state.assessPlayerId||state.assessPlayerId==="all"||!players.some(function(p){ return p.id===state.assessPlayerId; });
+    var shown=(view!=="card"&&!selAll)?players.filter(function(p){ return p.id===state.assessPlayerId; }):players;
+    var playerOpts=players.map(function(p){ return '<option value="'+p.id+'"'+((view==="card"?p.id===assessPlayerId():(!selAll&&p.id===state.assessPlayerId))?" selected":"")+">"+esc(p.name)+"</option>"; }).join("");
     var tabs='<div class="filters"><span class="help">View</span>'+
       '<button type="button" class="btn btn-small'+(view==="grid"?"":" btn-outline")+'" data-act="assess-view" data-view="grid">Rankings grid</button>'+
       '<button type="button" class="btn btn-small'+(view==="entry"?"":" btn-outline")+'" data-act="assess-view" data-view="entry">Enter results</button>'+
       '<button type="button" class="btn btn-small'+(view==="card"?"":" btn-outline")+'" data-act="assess-view" data-view="card">Report card</button>'+
       '<label>Period <select id="assess-period">'+periodOpts+"</select></label>"+
-      (view==="card"?'<label>Player <select id="assess-player">'+playerOpts+"</select></label>":"")+
+      '<label>Player <select id="assess-player">'+(view==="card"?"":'<option value="all"'+(selAll?" selected":"")+'>All players</option>')+playerOpts+"</select></label>"+
       "</div>";
     var actions='<button class="btn btn-small" data-act="print-card">Print report card</button>'+
       '<button class="btn btn-outline btn-small" data-act="mailto-card">Email draft (this player)</button>'+
       '<button class="btn btn-outline btn-small" data-act="print-team-fitness">Print team fitness report</button>'+
       '<button class="btn btn-ghost btn-small" data-act="mailto-team-fitness">Email draft (whole team)</button>';
-    var body=view==="entry"?viewAssessEntry(players,periods,pid):view==="card"?viewAssessCard(pid):viewAssessGrid(players,periods);
+    var body=view==="entry"?viewAssessEntry(shown,periods,pid):view==="card"?viewAssessCard(pid):viewAssessGrid(players,periods,shown);
     return pageHead("Fitness tests & assessment","Quarterly battery, squad rankings and report cards. Sample data only. Green ▲ improved, red ▼ dropped.", actions)+
       tabs+body+
       '<p class="help">CF = result carried forward from the previous period (for example if a player was injured). Rankings are calculated within this team only. This is a prototype, not official club records.</p>';
   }
 
-  function viewAssessGrid(players, periods){
+  function viewAssessGrid(players, periods, shown){
+    shown=shown||players;
     if(!players.length) return "<p>No players in this team. Add players on the Roster tab, or sign in as a coach who has a sample squad (Selena for U9 Girls, David Crisp for the Under 14s).</p>";
     var tests=testsList();
     var maps={};
@@ -2003,7 +2006,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
       var cls=kind==="overall"?" class=\"rc-overall-row\"":(kind==="group"?" class=\"rc-group-row\"":"");
       return "<tr"+cls+"><th>"+label+"</th>"+cells+"</tr>";
     }
-    var blocks=players.map(function(p){
+    var blocks=shown.map(function(p){
       var body=row("Overall","overall",null,null,p)+
         row("Fitness (7 tests)","group",null,"fitness",p)+
         tests.filter(function(t){ return t.group==="fitness"; }).map(function(t){ return row(esc(t.name)+(t.unit?" ("+esc(t.unit)+")":""),"test",t.id,null,p); }).join("")+
@@ -2016,7 +2019,7 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
     var a=latest.length>=2?latest[latest.length-2]:null;
     var b=latest.length?latest[latest.length-1]:null;
     var stats="";
-    if(a&&b){
+    if(a&&b&&shown.length===players.length){
       var up=0,down=0,same=0;
       players.forEach(function(p){
         var r0=maps[a.id].overall[p.id], r1=maps[b.id].overall[p.id];
