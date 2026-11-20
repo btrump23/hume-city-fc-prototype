@@ -1024,6 +1024,14 @@ body.coach .built-by--header {
 .todo-add input { flex:1 1 12rem; }
 .todo-alert { background:#FFF6D8; border-radius:8px; padding:0.4rem 0.6rem; margin:0.3rem 0; }
 .tabbar .tab-break { flex-basis:100%; height:0; }
+
+/* Training Plan review */
+.plan-review { display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center; margin-top:0.6rem; padding-top:0.5rem; border-top:1px dashed var(--line,#ddd); }
+.plan-review select, .plan-review input, .plan-review-overall select, .plan-review-overall input { font:inherit; padding:0.25rem 0.45rem; border:1px solid var(--line,#ddd); border-radius:6px; }
+.plan-review input { flex:1 1 14rem; }
+.plan-review-card { padding:0.9rem 1rem; border-top:4px solid var(--red,#C8102E); }
+.plan-review-overall { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; margin-top:0.7rem; font-weight:700; }
+.plan-review-overall input { flex:1 1 16rem; font-weight:400; }
   </style>
 </head>
 <body class="coach">
@@ -1962,10 +1970,26 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
       u14:["Re-test fitness and ball-skill tests (Assessment / Fitness tabs)","Player self-reflection: 2 strengths, 1 goal","Internal tournament","Plan goals for next block"],
       tips:["Compare against each player's own baseline, not team-mates","Share progress via reports (never auto-sent)","Finish on fun"] }
   ];
+  var PLAN_RATES=[["","Rate improvement (optional)"],["improved","Yes, clear improvement"],["some","Some improvement"],["none","No noticeable change"],["unsure","Too early to tell"]];
+  function planReview(){ db.trainingReview=db.trainingReview||{}; var k=teamId(); db.trainingReview[k]=db.trainingReview[k]||{weeks:{},overall:"",overallNote:""}; db.trainingReview[k].weeks=db.trainingReview[k].weeks||{}; return db.trainingReview[k]; }
+  function planRateOpts(sel){ return PLAN_RATES.map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===(sel||"")?" selected":"")+">"+o[1]+"</option>"; }).join(""); }
+  function planReviewSummary(rv,done){
+    var c={improved:0,some:0,none:0,unsure:0}; Object.keys(rv.weeks).forEach(function(w){ var r=rv.weeks[w]&&rv.weeks[w].rating; if(r&&c[r]!==undefined) c[r]++; });
+    var rated=c.improved+c.some+c.none+c.unsure;
+    var focusRows=TRAINING_PLAN.filter(function(x){ return rv.weeks[x.w]&&rv.weeks[x.w].rating; }).map(function(x){ var r=rv.weeks[x.w]; var lbl=(PLAN_RATES.filter(function(o){ return o[0]===r.rating; })[0]||["",""])[1]; return "<tr><td>Week "+x.w+"</td><td>"+esc(x.focus)+"</td><td>"+esc(lbl)+"</td><td>"+esc(r.note||"")+"</td></tr>"; }).join("");
+    var overallOpts=[["","Choose (optional)"],["yes","Yes, the plan worked"],["partly","Partly worked"],["no","No, change the plan"]].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===(rv.overall||"")?" selected":"")+">"+o[1]+"</option>"; }).join("");
+    return '<article class="card plan-review-card"><h3>Did the plan work? ('+esc(team().name)+')</h3>'+
+      '<p class="help">Optional. Rate each week after you tick it done, then give an overall verdict at the end of the 13 weeks. Results are saved separately for each team.</p>'+
+      '<div class="stats">'+stat(rated+" / 13","Weeks rated")+stat(c.improved,"Clear improvement")+stat(c.some,"Some improvement")+stat(c.none,"No change")+"</div>"+
+      (focusRows?'<div class="table-wrap"><table class="data"><thead><tr><th>Week</th><th>Focus</th><th>Result</th><th>Note</th></tr></thead><tbody>'+focusRows+"</tbody></table></div>":"")+
+      '<div class="plan-review-overall"><label>Overall verdict <select class="plan-overall">'+overallOpts+'</select></label>'+
+      '<input class="plan-overall-note" value="'+esc(rv.overallNote||"")+'" placeholder="What would you keep or change next block?" aria-label="Overall note"></div></article>';
+  }
   function planAgeDefault(){ var n=(team().name||""); if(/9/.test(n)) return "u9"; if(/14/.test(n)) return "u14"; return "both"; }
   function viewTraining(){
     db.trainingDone=db.trainingDone||{}; var done=db.trainingDone[teamId()]||{};
     var age=state.planAge||planAgeDefault();
+    var rv=planReview();
     var n=TRAINING_PLAN.filter(function(x){ return done[x.w]; }).length;
     var sel='<label class="help">Show drills for <select id="plan-age">'+[["both","U9 girls & U14s"],["u9","U9 girls"],["u14","U14s"]].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===age?" selected":"")+">"+o[1]+"</option>"; }).join("")+"</select></label>";
     var rows=TRAINING_PLAN.map(function(x){
@@ -1974,11 +1998,11 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
       if(age!=="u14") drills+='<div class="plan-col"><h4>U9 girls</h4>'+list(x.u9)+"</div>";
       if(age!=="u9") drills+='<div class="plan-col"><h4>U14s</h4>'+list(x.u14)+"</div>";
       return '<article class="card plan-week'+(done[x.w]?" is-done":"")+'"><div class="plan-head"><span class="plan-wk">Week '+x.w+'</span><h3>'+esc(x.focus)+'</h3><label class="plan-check"><input type="checkbox" class="plan-done" data-week="'+x.w+'"'+(done[x.w]?" checked":"")+"> Done</label></div>"+
-        '<p class="help"><strong>Goal:</strong> '+esc(x.goal)+'</p><div class="plan-cols">'+drills+'<div class="plan-col"><h4>Coaching tips</h4>'+list(x.tips)+"</div></div></article>";
+        '<p class="help"><strong>Goal:</strong> '+esc(x.goal)+'</p><div class="plan-cols">'+drills+'<div class="plan-col"><h4>Coaching tips</h4>'+list(x.tips)+"</div></div>"+(done[x.w]?'<div class="plan-review"><strong>Did it work?</strong><select class="plan-rate" data-week="'+x.w+'" aria-label="Improvement for week '+x.w+'">'+planRateOpts(rv.weeks[x.w]&&rv.weeks[x.w].rating)+'</select><input class="plan-rnote" data-week="'+x.w+'" value="'+esc((rv.weeks[x.w]&&rv.weeks[x.w].note)||"")+'" placeholder="Optional note, e.g. most players now pass with both feet" aria-label="Note for week '+x.w+'"></div>':"")+"</article>";
     }).join("");
     return pageHead("Training Plan","A 13-week skills block for youth football. Suggested sessions of 60–75 minutes: warm-up, skill, game, cool-down. Sample content. Adapt it to your squad and club guidelines.",sel)+
       '<div class="stats">'+stat(n+" / 13","Weeks completed ("+team().name+")")+stat("60–75 min","Suggested session")+stat("4 parts","Warm-up · skill · game · cool-down")+"</div>"+
-      '<div class="plan-grid">'+rows+"</div>";
+      '<div class="plan-grid">'+rows+"</div>"+planReviewSummary(rv,done);
   }
   function isTD(){ var c=currentCoach()||{}; return !!c.canViewAll; }
   function coachName(id){ var c=clubCoaches().filter(function(x){ return x.id===id; })[0]; return c?c.name:"Unassigned"; }
@@ -3053,6 +3077,8 @@ window.HCFC_TTE_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABICA
     reader.readAsText(file);
   }
   function onDomChange(e){
+    if(e.target && e.target.classList && (e.target.classList.contains("plan-rate")||e.target.classList.contains("plan-rnote"))){ var prv=planReview(), pw=e.target.getAttribute("data-week"); prv.weeks[pw]=prv.weeks[pw]||{rating:"",note:""}; if(e.target.classList.contains("plan-rate")) prv.weeks[pw].rating=e.target.value; else prv.weeks[pw].note=e.target.value; persist(); render(); return; }
+    if(e.target && e.target.classList && (e.target.classList.contains("plan-overall")||e.target.classList.contains("plan-overall-note"))){ var prv2=planReview(); if(e.target.classList.contains("plan-overall")) prv2.overall=e.target.value; else prv2.overallNote=e.target.value; persist(); render(); return; }
     if(e.target && e.target.classList && e.target.classList.contains("todo-done")){ var tdi=(db.coachTodos||[]).filter(function(x){ return x.id===e.target.getAttribute("data-id"); })[0]; if(tdi){ tdi.done=e.target.checked; tdi.doneAt=tdi.done?new Date().toISOString().slice(0,10):""; tdi.seenByTD=tdi.done?isTD():true; persist(); if(tdi.done&&!isTD()) toast("Done. Ozzi has been notified."); state.todoOpen=true; render(); } return; }
     if(e.target && e.target.classList && (e.target.classList.contains("todo-text")||e.target.classList.contains("todo-who"))){ var tde=(db.coachTodos||[]).filter(function(x){ return x.id===e.target.getAttribute("data-id"); })[0]; if(tde&&isTD()){ if(e.target.classList.contains("todo-text")) tde.text=e.target.value; else tde.assigneeId=e.target.value; persist(); state.todoOpen=true; render(); } return; }
     if(e.target && e.target.id==="plan-age"){ state.planAge=e.target.value; render(); return; }
