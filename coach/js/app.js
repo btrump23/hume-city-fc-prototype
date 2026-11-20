@@ -114,7 +114,7 @@
       '<div class="draft-banner"><strong>Temporary prototype — sample data.</strong> Do not enter real player or medical details. No sign-in is required. <a href="../index.html">Prototype hub</a>'+(HCFC.storageAvailable&&HCFC.storageAvailable()?'':' <strong>This browser could not save data, so the sample set is in memory only for this session.</strong>')+'</div>'+
       '<header class="coach-top"><div class="wrap-wide"><div class="coach-top-inner">'+
       '<a class="brand" href="../index.html"><img src="'+crestSrc()+'" width="36" height="44" alt="Placeholder crest"><span><span class="brand-name">Coach Dashboard</span><span class="brand-tag">Placeholder crest · '+esc(t.name)+'</span></span></a>'+
-      '<div class="header-switches">'+'<a class="btn btn-ghost btn-small home-link" href="../index.html">&larr; Back to Home</a>'+
+      '<div class="header-switches">'+'<a class="btn btn-small home-link" href="../index.html">&larr; Back to Home</a>'+
       '<label class="team-switch">Signed in as coach <select id="coach-switch">'+coachOpts+'</select></label>'+
       '<label class="team-switch">Team <select id="team-switch"'+(teamLocked?" disabled":"")+'>'+opts+'</select></label>'+
       builtBy("built-by--header")+
@@ -313,6 +313,7 @@
     return pageHead("Captain & Fruit Roster","Season captain, weekly match captain and who brings fruit. Sample players only.",
       '<button class="btn btn-small" data-act="duty-autofill">Auto-fill rotation</button>'+
       '<button class="btn btn-outline btn-small" data-act="duty-clear">Clear roster</button>')+
+      (function(){ var c=currentCoach()||{}; return '<p class="note">Showing the roster for <strong>'+esc(team().name)+'</strong>, managed by <strong>'+esc(c.name||"")+'</strong>'+(c.role?" ("+esc(c.role)+")":"")+'. Each coach has a separate captain and fruit roster for their own team.'+(c.canViewAll?" As Technical Director, Ozzi can switch teams with the Team picker.":"")+"</p>"; })()+
       (players.length?"":"<p>No players in this team. Add players on the Roster tab first.</p>")+
       '<div class="card" style="margin-bottom:1rem"><h2>Team captain</h2><div class="grid-2">'+
       '<div class="field"><label>Season captain</label><select data-act="team-captain" data-k="captainId">'+pOpts(tc.captainId)+"</select></div>"+

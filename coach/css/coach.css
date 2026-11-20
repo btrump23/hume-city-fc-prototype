@@ -403,3 +403,5 @@ body.coach .built-by--header {
 @media (max-width: 720px) {
   body.coach .built-by--header { margin-left: 0; max-width: none; width: 100%; }
 }
+body.coach .home-link, .home-link { background:var(--red,#E10600); color:#fff !important; border:2px solid #fff; font-weight:700; text-decoration:none; }
+body.coach .home-link:hover { background:#fff; color:#111 !important; }
