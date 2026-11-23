@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact — Webb Security Solutions (Draft Mock-up)</title>
+  <meta name="description" content="Sample contact form for the Webb Security Solutions website mock-up.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="draft-ribbon">Draft mock-up — sample content and pricing only</div>
+  <header class="site-header">
+    <nav class="nav-wrap" aria-label="Primary">
+      <a class="logo" href="index.html">
+        <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#20e3c8"/>
+      <stop offset="1" stop-color="#3b9eff"/>
+    </linearGradient>
+  </defs>
+  <path fill="#0b1220" stroke="url(#lg)" stroke-width="3" d="M32 4l24 10v18c0 16.5-10.2 27.8-24 32C18.2 59.8 8 48.5 8 32V14L32 4z"/>
+  <circle cx="32" cy="30" r="9.5" fill="none" stroke="#20e3c8" stroke-width="2.5"/>
+  <circle cx="32" cy="30" r="3.6" fill="#20e3c8"/>
+  <path d="M24 46h16" stroke="#3b9eff" stroke-width="2" stroke-linecap="round"/>
+</svg>
+        <span class="logo-text"><strong>WEBB</strong><span>Security Solutions</span></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu"><span></span></button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html" class="nav-cta" aria-current="page">Get a quote</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" class="page">
+    <section class="section" style="padding-top:24px">
+      <div class="wrap contact-grid">
+        <div class="card contact-card">
+          <p class="eyebrow">Contact</p>
+          <h1>Tell us about the property.</h1>
+          <p>This form is a mock-up. It does not send a message or book a visit — you’ll just see a thank-you note on the page.</p>
+          <dl>
+            <dt>Phone</dt>
+            <dd>1800 000 000 <span style="color:var(--muted)">(sample)</span></dd>
+            <dt>Email</dt>
+            <dd><a href="mailto:hello@webbsecurity.example">hello@webbsecurity.example</a></dd>
+            <dt>Service area</dt>
+            <dd>Sample service area — metro and surrounding suburbs (placeholder). No street address listed in this draft.</dd>
+            <dt>Hours</dt>
+            <dd>Monday–Saturday, 8am–6pm (sample)</dd>
+          </dl>
+        </div>
+        <div>
+          <form id="contact-form" class="card" action="#" method="post" novalidate>
+            <div>
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel">
+            </div>
+            <div>
+              <label for="interest">I’m interested in</label>
+              <select id="interest" name="interest">
+                <option>2-camera kit</option>
+                <option selected>4-camera kit</option>
+                <option>8-camera kit</option>
+                <option>Alarm system</option>
+                <option>Video doorbell</option>
+                <option>Maintenance</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div>
+              <label for="message">About the property</label>
+              <textarea id="message" name="message" placeholder="Storey count, outdoor areas, anything you already have installed…"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Send sample enquiry</button>
+          </form>
+          <div id="form-success" class="form-success" tabindex="-1">
+            <h2>Thanks — this is a mock-up.</h2>
+            <p>Nothing was sent. In a finished site, this would go to the Webb team. You can keep browsing the draft.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap foot-row">
+      <div>
+        <strong style="color:var(--text)">Webb Security Solutions</strong>
+        <div>Draft mock-up for review. Sample details only — not a live booking site.</div>
+      </div>
+      <div class="credit">Mock-up by Trump Technology &amp; Engineering</div>
+    </div>
+  </footer>
+  <script src="js/main.js"></script>
+</body>
+</html>
