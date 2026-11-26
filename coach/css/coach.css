@@ -480,3 +480,77 @@ body.coach .built-by .built-by-label { font-size: 0.58rem; }
 body.coach .built-by .built-by-name { font-size: 0.76rem; white-space: normal; line-height: 1.15; }
 body.coach .built-by--header { max-width: 11.5rem; margin-left: auto; align-self: center; }
 body.coach .header-switches .home-link { margin-left: 0.5rem; }
+
+/* Dave U12 sheet-style grids */
+.sheet-wrap { max-height: 70vh; }
+table.sheet-grid { font-size: 0.78rem; }
+table.sheet-grid th, table.sheet-grid td { padding: 0.28rem 0.35rem; text-align: center; white-space: nowrap; }
+table.sheet-grid th.sticky, table.sheet-grid td.sticky,
+table.sheet-grid tbody th.sticky, table.sheet-grid thead th.sticky {
+  position: sticky; left: 0; z-index: 2; text-align: left; min-width: 8.5rem; background: #fff; box-shadow: 1px 0 0 var(--line);
+}
+table.sheet-grid thead th.sticky { z-index: 3; }
+table.sheet-grid th.holiday, table.sheet-grid td.holiday { background: var(--warn-bg); }
+.role-code { display: inline-block; font-weight: 700; min-width: 1.05rem; }
+.role-F { color: var(--good); }
+.role-C { color: var(--info); }
+.role-R { color: var(--warn); }
+.role-L { color: #6E4A00; }
+.role-V { color: #7A3E9D; }
+.muted { color: var(--muted); font-weight: 400; font-size: 0.85em; }
+.campaign-summary { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; }
+.campaign-summary ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+.campaign-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.2rem; margin: 0 0 1rem; }
+.campaign-card h3 { margin: 0 0 0.7rem; font-size: 1.05rem; }
+.campaign-card.is-reset { border-left: 4px solid var(--red); }
+.campaign-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.35rem 1.2rem; }
+.campaign-field { margin: 0 0 0.55rem; }
+.campaign-field dt { font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.campaign-field dd { margin: 0.15rem 0 0; }
+.att-Y { background: var(--good-bg); }
+.att-A { background: var(--bad-bg); }
+.att-S { background: var(--warn-bg); }
+.att-I { background: var(--info-bg); }
+.att-N { background: #f3e8f8; }
+.att-pill { display: inline-block; min-width: 1.1rem; text-align: center; font-weight: 700; padding: 0 0.2rem; border-radius: 4px; }
+tr.is-total th, tr.is-total td { font-weight: 700; background: #faf6f6; }
+
+/* Dave U12 encrypted login */
+body.coach.dave-locked { background: #000; }
+body.coach.dave-locked .gate {
+  min-height: calc(100vh - 8rem);
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem 3rem;
+  background:
+    radial-gradient(ellipse at top, rgba(200,16,46,0.28), transparent 55%),
+    linear-gradient(180deg, #111 0%, #000 100%);
+  color: #F3F3F3;
+}
+body.coach.dave-locked .gate-card {
+  width: min(28rem, 100%);
+  background: #0A0A0A;
+  color: #F3F3F3;
+  border: 1px solid #2A2A2A;
+  border-radius: 16px;
+  padding: 1.7rem 1.6rem 1.5rem;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+}
+body.coach.dave-locked .gate-crest { display:block; margin: 0 auto 0.7rem; }
+body.coach.dave-locked .gate-card .kicker { text-align:center; letter-spacing:0.08em; text-transform:uppercase; color:#B8B8B8; margin:0; font-size:0.75rem; }
+body.coach.dave-locked .gate-card h1 { text-align:center; margin: 0.2rem 0 0.7rem; color:#fff; }
+body.coach.dave-locked .gate-card .help { text-align:center; }
+body.coach.dave-locked .gate-form { margin-top: 1rem; }
+body.coach.dave-locked .gate-form .field { margin-bottom: 0.8rem; }
+body.coach.dave-locked .gate-form label { display:block; font-size:0.8rem; margin-bottom:0.25rem; color:#B8B8B8; }
+body.coach.dave-locked .gate-error {
+  background: #3A1010;
+  color: #FF6B6B;
+  border: 1px solid #5A2020;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  margin: 0.2rem 0 0.8rem;
+}
+body.coach.dave-locked .gate-note { margin-top: 1rem; font-size: 0.8rem; color:#B8B8B8; }
+body.coach.dave-locked .gate-form .toolbar { justify-content: stretch; }
+body.coach.dave-locked .gate-form .toolbar .btn { width: 100%; }

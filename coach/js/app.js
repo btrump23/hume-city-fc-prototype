@@ -2,7 +2,7 @@
 (function () {
   var db = HCFC.load();
   var state = { tab: "roster", q: "", tracking: "all", medFlagged: false, toast: "", modal: null, taskSetId: null, assessView: "grid", assessPeriodId: null, assessPlayerId: null };
-  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Captain & Fruit Roster"],["training","Training Plan"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["fees","Fees & Uniform"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
+  var TABS = [["roster","Roster"],["tracking","Tracking"],["duties","Parents Roles"],["campaign","Season Campaign"],["training","Training Plan"],["assessment","Assessment"],["fitness","Fitness"],["tasks","Tasks"],["medical","Medical"],["fees","Fees & Uniform"],["matches","Matches"],["fixtures","Fixtures"],["sessions","Sessions"],["equipment","Equipment"],["comms","Comms"],["reports","Reports"],["settings","Settings"]];
 
   function crestSrc(){ return window.HCFC_CREST || "../assets/crest.svg"; }
   function tteSrc(){ return window.HCFC_TTE_LOGO || "../assets/tte-mark.png"; }
@@ -29,7 +29,7 @@
   function tdLabel(){ var x=td(); return x.name+" ("+x.role+")"; }
   function coachAvatar(id,size){ var m={"coach-ozzi":"ozzi","coach-selena":"selena","coach-david":"david"}[id]; size=size||32; return m?'<img class="coach-avatar" src="../assets/coaches/'+m+'.jpg" width="'+size+'" height="'+size+'" alt="">':""; }
   function clubCoaches(){ return (db.settings && db.settings.coaches) || []; }
-  function policiesNote(){ return (db.settings && db.settings.policiesNote) || "Club policies are on the club's Team App, under the Documents tab."; }
+  function policiesNote(){ return (db.settings && db.settings.policiesNote) || "Club policies are on the club’s Team App, under the Documents tab."; }
   function clubBar(){
     return '<div class="note club-bar">Concerns or feedback: <a href="mailto:'+esc(td().email)+'">'+esc(tdLabel())+'</a> · '+esc(td().email)+' · '+esc(policiesNote())+'</div>';
   }
@@ -107,7 +107,7 @@
     var teamLocked=coach && !coach.canViewAll && !!coach.teamId;
     var coachOpts=clubCoaches().map(function(c){ return '<option value="'+esc(c.id)+'"'+(c.id===coach.id?" selected":"")+'>'+esc(c.name)+(c.role?" — "+esc(c.role):"")+"</option>"; }).join("");
     var opts=db.teams.map(function(x){ return '<option value="'+esc(x.id)+'"'+(x.id===teamId()?" selected":"")+'>'+esc(x.name)+'</option>'; }).join("");
-    var tabs=TABS.map(function(pair){
+    var tabs=tabList().map(function(pair){
       var extra=pair[0]==="medical"&&follow?' <span class="badge badge-bad">'+follow+'</span>':"";
       return '<button type="button" data-act="tab" data-tab="'+pair[0]+'"'+(state.tab===pair[0]?' class="is-active" aria-current="page"':"")+'>'+pair[1]+extra+'</button>'+(pair[0]==="fees"?'<span class="tab-break" aria-hidden="true"></span>':"");
     }).join("");
@@ -118,6 +118,7 @@
       '<div class="header-switches">'+'<a class="btn btn-small home-link" href="../index.html">&larr; Back to Home</a>'+
       coachAvatar(coach.id,40)+'<label class="team-switch">Signed in as coach <select id="coach-switch">'+coachOpts+'</select></label>'+
       '<label class="team-switch">Team <select id="team-switch"'+(teamLocked?" disabled":"")+'>'+opts+'</select></label>'+
+      (daveUnlocked()&&isDaveArea()?'<button type="button" class="btn btn-outline btn-small" data-act="dave-logout">Log out</button>':'')+
       builtBy("built-by--header")+
       '</div>'+
       '</div><p class="help scope-note">Prototype scoping only — this is not a real login. A named coach sees only their own team. Ozzi (Technical Director) can view every team.</p>'+
@@ -129,7 +130,128 @@
       '</div>';
   }
 
-  function viewRoster(){
+
+  var DAVE_SESS = "hcfc-dave-vault-v1";
+  var DAVE_TEAM = "t-u12g";
+  var DAVE_COACH = "coach-david";
+
+  function isDaveArea(){
+    var c=currentCoach();
+    return teamId()===DAVE_TEAM || (c && c.id===DAVE_COACH);
+  }
+  function daveUnlocked(){ return !!(window.HCFC_DAVE_U12 && window.HCFC_DAVE_U12.players); }
+  function daveData(){ return daveUnlocked() ? window.HCFC_DAVE_U12 : null; }
+  function isDaveTeam(){ return teamId()===DAVE_TEAM && daveUnlocked(); }
+
+  function b64ToBytes(b64){
+    var bin=atob(b64), out=new Uint8Array(bin.length), i;
+    for(i=0;i<bin.length;i++) out[i]=bin.charCodeAt(i);
+    return out;
+  }
+  function sha256hex(str){
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function(buf){
+      return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,"0"); }).join("");
+    });
+  }
+  function decryptDaveVault(user, pass){
+    var v=window.HCFC_DAVE_VAULT;
+    if(!v) return Promise.reject(new Error("missing-vault"));
+    if(!window.crypto || !crypto.subtle) return Promise.reject(new Error("secure-context"));
+    var enc=new TextEncoder();
+    return sha256hex(user).then(function(uh){
+      if(v.userHash && uh!==v.userHash) return Promise.reject(new Error("bad"));
+      return crypto.subtle.importKey("raw", enc.encode(user+"\n"+pass), "PBKDF2", false, ["deriveKey"]);
+    }).then(function(material){
+      return crypto.subtle.deriveKey(
+        {name:"PBKDF2", salt:b64ToBytes(v.salt), iterations:v.iter, hash:"SHA-256"},
+        material, {name:"AES-GCM", length:256}, false, ["decrypt"]
+      );
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:"AES-GCM", iv:b64ToBytes(v.iv)}, key, b64ToBytes(v.ct));
+    }).then(function(pt){
+      return JSON.parse(new TextDecoder().decode(pt));
+    });
+  }
+  function applyUnlockedDave(payload){
+    window.HCFC_DAVE_U12 = payload;
+    try{ sessionStorage.setItem(DAVE_SESS, JSON.stringify(payload)); }catch(e){}
+    if(typeof HCFC.applyDaveU12==="function") HCFC.applyDaveU12(db);
+    state.daveError="";
+  }
+  function lockDave(){
+    window.HCFC_DAVE_U12 = null;
+    try{ sessionStorage.removeItem(DAVE_SESS); }catch(e){}
+    if(typeof HCFC.stripDaveU12==="function"){
+      var stripped=HCFC.stripDaveU12(db);
+      Object.keys(stripped).forEach(function(k){ db[k]=stripped[k]; });
+    } else {
+      db.players=(db.players||[]).filter(function(p){ return p.teamId!==DAVE_TEAM; });
+    }
+    persist();
+  }
+  function restoreDaveSession(){
+    try{
+      var raw=sessionStorage.getItem(DAVE_SESS);
+      if(!raw) return;
+      var payload=JSON.parse(raw);
+      if(payload && payload.players) applyUnlockedDave(payload);
+    }catch(e){}
+  }
+  function viewDaveLogin(){
+    var coach=currentCoach();
+    var teamLocked=coach && !coach.canViewAll && !!coach.teamId;
+    var coachOpts=clubCoaches().map(function(c){ return '<option value="'+esc(c.id)+'"'+(c.id===((coach&&coach.id)||"")?" selected":"")+'>'+esc(c.name)+(c.role?" — "+esc(c.role):"")+"</option>"; }).join("");
+    var opts=db.teams.map(function(x){ return '<option value="'+esc(x.id)+'"'+(x.id===teamId()?" selected":"")+'>'+esc(x.name)+'</option>'; }).join("");
+    var err=state.daveError?'<p class="gate-error" role="alert">'+esc(state.daveError)+"</p>":"";
+    var noCrypto=(!window.crypto||!crypto.subtle)?'<p class="gate-error" role="alert">Open this dashboard over http or https to unlock this area.</p>':"";
+    return '<div class="app-shell dave-login">'+
+      '<div class="draft-banner"><strong>Temporary prototype — protected area.</strong> <a href="../index.html">Prototype hub</a></div>'+
+      '<header class="coach-top"><div class="wrap-wide"><div class="coach-top-inner">'+
+      '<a class="brand" href="../index.html"><img src="'+crestSrc()+'" width="36" height="44" alt="Placeholder crest"><span><span class="brand-name">Coach Dashboard</span><span class="brand-tag">U12 Girls — locked</span></span></a>'+
+      '<div class="header-switches">'+'<a class="btn btn-small home-link" href="../index.html">&larr; Back to Home</a>'+
+      (coach?coachAvatar(coach.id,40):"")+'<label class="team-switch">Signed in as coach <select id="coach-switch">'+coachOpts+'</select></label>'+
+      '<label class="team-switch">Team <select id="team-switch"'+(teamLocked?" disabled":"")+'>'+opts+'</select></label>'+
+      builtBy("built-by--header")+
+      '</div></div></div></header>'+
+      '<main class="gate" id="main"><div class="gate-card">'+
+      '<img class="gate-crest" src="'+crestSrc()+'" width="56" height="68" alt="Placeholder crest">'+
+      '<p class="kicker">David Crisp</p>'+
+      "<h1>U12 Girls</h1>"+
+      '<p class="help">This coach area is locked. Enter the username and password to open the team book.</p>'+
+      '<form id="dave-login-form" class="form gate-form" autocomplete="off">'+
+      '<div class="field"><label for="dave-user">Username</label><input id="dave-user" name="user" type="text" required autofocus autocapitalize="none" autocorrect="off" spellcheck="false"></div>'+
+      '<div class="field"><label for="dave-pass">Password</label><input id="dave-pass" name="pass" type="password" required></div>'+
+      err+noCrypto+
+      '<div class="toolbar"><button class="btn" type="submit">Log in</button></div>'+
+      "</form>"+
+      '<p class="help gate-note">The team book is stored encrypted in this demo and can only be read after a correct login. This is not a substitute for a real hosted login in production.</p>'+
+      "</div></main>"+
+      '<footer class="coach-foot"><div class="wrap-wide">'+builtBy("")+"</div></footer></div>";
+  }
+  function bindDaveLogin(){
+    var form=document.getElementById("dave-login-form");
+    if(!form) return;
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var user=(document.getElementById("dave-user")||{}).value||"";
+      var pass=(document.getElementById("dave-pass")||{}).value||"";
+      var btn=form.querySelector('button[type="submit"]');
+      if(btn){ btn.disabled=true; btn.textContent="Checking…"; }
+      decryptDaveVault(user, pass).then(function(payload){
+        applyUnlockedDave(payload);
+        render();
+      }).catch(function(err){
+        state.daveError = (err && err.message==="secure-context")
+          ? "Open this dashboard over http or https to unlock this area."
+          : "That username or password is not right.";
+        render();
+      });
+    });
+  }
+
+
+    function viewRoster(){
+    if(isDaveTeam()) return viewDaveRosterExtra();
     var q=state.q.toLowerCase();
     var rows=teamPlayers().filter(function(p){
       return [p.name,p.email,p.guardian1.email,p.guardian1.name,(p.guardian2||{}).email].join(" ").toLowerCase().indexOf(q)!==-1;
@@ -150,7 +272,8 @@
       '<div class="filters"><input id="search" placeholder="Search name or email" value="'+esc(state.q)+'"></div>'+
       '<div class="table-wrap"><table class="data"><thead><tr><th>Player &amp; email</th><th>Parent / guardian contacts</th><th>Last contacted</th><th></th></tr></thead><tbody>'+
       (rows||'<tr><td colspan="4">No players yet.</td></tr>')+'</tbody></table></div>'+
-      '<p class="help">Families not contacted in 30+ days are highlighted. All names here are sample data.</p>';
+      '<p class="help">Families not contacted in 30+ days are highlighted. All names here are sample data.</p>'+
+      (teamId()==="t-u12g"?'<p class="note">This roster stands in for David Crisp’s shared <strong>2026 U12 Girls</strong> spreadsheet. Every player and family name is invented. Names are invented; kit sizes and role counts follow the shared workbook.</p>':'');
   }
 
   function playerForm(p){
@@ -191,6 +314,7 @@
   }
 
   function viewTracking(){
+    if(isDaveTeam()) return viewDaveTracking();
     var list=teamPlayers();
     var paid=list.filter(function(p){ return p.feeStatus==="Paid"; }).length;
     var awaitU=list.filter(function(p){ return p.uniformOrder==="Arrived" && p.uniformCollection!=="Collected"; }).length;
@@ -273,30 +397,58 @@
   }
 
   function dutyWeeks(){
+    var dates={}, tid=teamId();
+    function add(iso){ if(iso) dates[String(iso).slice(0,10)]=true; }
+    (db.fixtures||[]).forEach(function(f){ if(f.teamId===tid) add(f.date); });
+    (db.matches||[]).forEach(function(m){ if(m.teamId===tid) add(m.date); });
+    (db.sessions||[]).forEach(function(s){ if(s.teamId===tid && s.type==="Match") add(s.date); });
+    (db.duties||[]).forEach(function(d){ if(d.teamId===tid) add(d.week); });
+    var out=Object.keys(dates).filter(function(d){ return /^\d{4}-\d{2}-\d{2}$/.test(d); }).sort();
+    if(out.length) return out;
     var d=new Date(); d=new Date(d.getFullYear(),d.getMonth(),d.getDate());
     d.setDate(d.getDate()+((6-d.getDay()+7)%7));
-    var out=[]; for(var i=0;i<8;i++){ var x=new Date(d); x.setDate(d.getDate()+7*i); out.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")); }
+    out=[]; for(var i=0;i<8;i++){ var x=new Date(d); x.setDate(d.getDate()+7*i); out.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")); }
     return out;
   }
   function dutyFor(week){
     db.duties=db.duties||[];
     return db.duties.filter(function(x){ return x.teamId===teamId() && x.week===week; })[0];
   }
+  function fixtureForWeek(week){
+    return (db.fixtures||[]).filter(function(f){ return f.teamId===teamId() && String(f.date).slice(0,10)===week; })[0]
+      || (db.matches||[]).filter(function(m){ return m.teamId===teamId() && String(m.date).slice(0,10)===week; })[0];
+  }
+  function familyLabel(player){
+    if(!player) return "—";
+    var last=String(player.name||"").split(" ").slice(1).join(" ");
+    if(player.guardian1 && player.guardian1.name) return player.guardian1.name+" family";
+    return last ? last+" family" : player.name;
+  }
   function dutyAutofill(onlyEmpty){
     var players=teamPlayers(); if(!players.length) return;
     db.duties=db.duties||[];
+    var n=players.length;
     dutyWeeks().forEach(function(w,i){
       var rec=dutyFor(w);
-      if(!rec){ rec={teamId:teamId(),week:w,captainId:"",fruitId:"",notes:""}; db.duties.push(rec); }
-      if(!onlyEmpty||!rec.captainId) rec.captainId=players[i%players.length].id;
-      if(!onlyEmpty||!rec.fruitId) rec.fruitId=players[(i+Math.ceil(players.length/2))%players.length].id;
+      var fx=fixtureForWeek(w);
+      if(!rec){ rec={teamId:teamId(),week:w,captainId:"",fruitId:"",foodId:"",refId:"",potmId:"",opponent:"",homeAway:"",venue:"",notes:""}; db.duties.push(rec); }
+      if(fx){
+        if(!onlyEmpty||!rec.opponent) rec.opponent=rec.opponent||fx.opponent||fx.awayTeam||fx.homeTeam||"";
+        if(!onlyEmpty||!rec.homeAway) rec.homeAway=rec.homeAway||fx.homeAway||"";
+        if(!onlyEmpty||!rec.venue) rec.venue=rec.venue||fx.venue||"";
+      }
+      if(!onlyEmpty||!rec.captainId) rec.captainId=players[i%n].id;
+      if(!onlyEmpty||!rec.fruitId) rec.fruitId=players[(i+1)%n].id;
+      if(!onlyEmpty||!rec.foodId) rec.foodId=players[(i+1)%n].id;
+      if(!onlyEmpty||!rec.refId) rec.refId=players[(i+Math.ceil(n/2))%n].id;
+      if(!onlyEmpty||!rec.potmId) rec.potmId=players[(i+3)%n].id;
     });
     persist();
   }
   var TRAINING_PLAN = [
     { w:1, focus:"Ball mastery & first touch", goal:"Comfort on the ball with both feet.",
       u9:["Warm-up: 'Traffic lights' dribbling: green go, amber slow, red stop the ball with the sole","Every player with a ball in a grid: inside/outside taps, sole rolls, toe taps (30 s on / 30 s off)","Game: 'Sharks and minnows' 1–2 sharks try to knock balls out","Finish with 3v3 mini games, no goalkeepers"],
-      u14:["Rondo warm-up 4v1 to two touches","Receiving across the body: open hips, first touch out of feet into space","Pattern: pass, receive on back foot, turn and play forward through gates","Conditioned 5v5: a goal counts double if the scorer's first touch was forward"],
+      u14:["Rondo warm-up 4v1 to two touches","Receiving across the body: open hips, first touch out of feet into space","Pattern: pass, receive on back foot, turn and play forward through gates","Conditioned 5v5: a goal counts double if the scorer’s first touch was forward"],
       tips:["Lots of touches per player, keep queues short","Praise brave touches, not just clean ones","Coach: 'Look before it arrives'"] },
     { w:2, focus:"Dribbling & running with the ball", goal:"Beat a player and travel into space at speed.",
       u9:["Tag game with a ball at feet","Hero moves: teach one simple move (drag-back or step-over) and give it a fun name","1v1 to end-line gates","3v3 with 'dribble-in' goals (stop the ball on the line to score)"],
@@ -313,13 +465,13 @@
     { w:5, focus:"Defending 1v1", goal:"Stay patient, stay on your feet, steer the attacker.",
       u9:["'Shadow' game: follow a partner without the ball","Defend the line: stop the dribbler crossing the end line","1v1 in small channels","3v3 where a tackle-win = 1 point"],
       u14:["Approach: close quickly, slow down, side-on stance","Show the attacker onto their weaker foot / down the line","1v1 to 1v2 recover-and-cover drill","6v6, defending team scores by winning the ball and dribbling over halfway"],
-      tips:["'Don't dive in'","Low centre of gravity, bent knees","Win the ball when it's away from the attacker's foot"] },
+      tips:["'Don’t dive in'","Low centre of gravity, bent knees","Win the ball when it’s away from the attacker’s foot"] },
     { w:6, focus:"Fitness through football", goal:"Build speed, agility and endurance with the ball.",
       u9:["Agility ladder or cone zig-zags into a shot","Relay races with a ball","Freeze tag with a ball","3v3 continuous games with quick rotations"],
       u14:["Dynamic warm-up and injury-prevention routine (e.g. FIFA 11+ style)","Repeated sprint relays with the ball","Box-to-box transition game 4v4 + 4","Short recovery-pace possession game"],
       tips:["Keep the ball involved, no laps for punishment","Watch for fatigue and hydration in heat","Record a simple baseline (e.g. 20 m sprint) in the Fitness tab"] },
     { w:7, focus:"Small-sided games & decision making", goal:"Read the game: when to pass, dribble or shoot.",
-      u9:["4v4 with 4 small goals","'Coach freeze' moments: ask 'where's the space?'","1v1, 2v2, 3v3 rotations","Free play to finish"],
+      u9:["4v4 with 4 small goals","'Coach freeze' moments: ask 'where’s the space?'","1v1, 2v2, 3v3 rotations","Free play to finish"],
       u14:["5v5 + 2 neutral players","Game with directional and side goals to encourage switching play","Guided discovery questions at stoppages","Match-day style 8v8"],
       tips:["Ask questions rather than give answers","Let the game be the teacher","Limit stoppages to 2–3 per game"] },
     { w:8, focus:"Positioning & width/depth", goal:"Understand where to stand to help a team-mate.",
@@ -345,7 +497,7 @@
     { w:13, focus:"Review, assessment & fun festival", goal:"Celebrate progress and reassess.",
       u9:["Skills circuit 'passport' with stamps","Mini tournament with mixed teams","Awards: everyone gets a positive mention","Parents' game (optional)"],
       u14:["Re-test fitness and ball-skill tests (Assessment / Fitness tabs)","Player self-reflection: 2 strengths, 1 goal","Internal tournament","Plan goals for next block"],
-      tips:["Compare against each player's own baseline, not team-mates","Share progress via reports (never auto-sent)","Finish on fun"] }
+      tips:["Compare against each player’s own baseline, not team-mates","Share progress via reports (never auto-sent)","Finish on fun"] }
   ];
   var PLAN_QUARTERS=[{q:1,from:1,to:4},{q:2,from:5,to:8},{q:3,from:9,to:13}];
   var PLAN_RATES=[["","Rate (optional)"],["improved","Clear improvement"],["some","Some improvement"],["none","No noticeable change"],["unsure","Too early to tell"]];
@@ -363,18 +515,19 @@
       '<div class="plan-review-overall"><label>Did this quarter work? <select class="plan-qoverall" data-q="'+qd.q+'">'+ov+'</select></label>'+
       '<input class="plan-qnote" data-q="'+qd.q+'" value="'+esc(qr.note||"")+'" placeholder="What would you keep or change next quarter?" aria-label="Quarter '+qd.q+' note"></div></article>';
   }
-  function planAgeDefault(){ var n=(team().name||""); if(/9/.test(n)) return "u9"; if(/14/.test(n)) return "u14"; return "both"; }
+  function planAgeDefault(){ var id=teamId(); if(id==="t-u9") return "u9"; if(id==="t-u12g") return "u12"; if(id==="t-u14") return "u14"; var n=(team().name||""); if(/U12/.test(n)) return "u12"; if(/9/.test(n)) return "u9"; if(/14/.test(n)) return "u14"; return "both"; }
   function viewTraining(){
     db.trainingDone=db.trainingDone||{}; var done=db.trainingDone[teamId()]||{};
     var age=state.planAge||planAgeDefault();
     var rv=planReview();
     var n=TRAINING_PLAN.filter(function(x){ return done[x.w]; }).length;
-    var sel='<label class="help">Show drills for <select id="plan-age">'+[["both","U9 girls & U14s"],["u9","U9 girls"],["u14","U14s"]].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===age?" selected":"")+">"+o[1]+"</option>"; }).join("")+"</select></label>";
+    var sel='<label class="help">Show drills for <select id="plan-age">'+[["both","U9, U12 & U14"],["u9","U9 girls"],["u12","U12 Girls"],["u14","U14s"]].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===age?" selected":"")+">"+o[1]+"</option>"; }).join("")+"</select></label>";
     var rows=TRAINING_PLAN.map(function(x){
       function list(a){ return "<ul>"+a.map(function(i){ return "<li>"+esc(i)+"</li>"; }).join("")+"</ul>"; }
       var drills="";
-      if(age!=="u14") drills+='<div class="plan-col"><h4>U9 girls</h4>'+list(x.u9)+"</div>";
-      if(age!=="u9") drills+='<div class="plan-col"><h4>U14s</h4>'+list(x.u14)+"</div>";
+      if(age==="both"||age==="u9") drills+='<div class="plan-col"><h4>U9 girls</h4>'+list(x.u9)+"</div>";
+      if(age==="both"||age==="u12") drills+='<div class="plan-col"><h4>U12 Girls</h4>'+list(x.u12||x.u14)+"</div>";
+      if(age==="both"||age==="u14") drills+='<div class="plan-col"><h4>U14s</h4>'+list(x.u14)+"</div>";
       return '<article class="card plan-week'+(done[x.w]?" is-done":"")+'"><div class="plan-head"><span class="plan-wk">Week '+x.w+'</span><h3>'+esc(x.focus)+'</h3><label class="plan-check"><input type="checkbox" class="plan-done" data-week="'+x.w+'"'+(done[x.w]?" checked":"")+"> Done</label></div>"+
         '<p class="help"><strong>Goal:</strong> '+esc(x.goal)+'</p><div class="plan-cols">'+drills+'<div class="plan-col"><h4>Coaching tips</h4>'+list(x.tips)+"</div></div></article>"+(PLAN_QUARTERS.filter(function(q){ return q.to===x.w; }).map(function(q){ return planQuarterCard(q,rv,done); }).join(""));
     }).join("");
@@ -385,7 +538,7 @@
   function isTD(){ var c=currentCoach()||{}; return !!c.canViewAll; }
   function coachName(id){ var c=clubCoaches().filter(function(x){ return x.id===id; })[0]; return c?c.name:"Unassigned"; }
   function todoPanel(){
-    if(!db.coachTodos){ db.coachTodos=[{id:"todo-s1",text:"Upload Week 1 attendance (sample task)",assigneeId:"coach-selena",done:false,doneAt:"",seenByTD:true},{id:"todo-s2",text:"Confirm U14 fruit roster for next 4 weeks (sample task)",assigneeId:"coach-david",done:false,doneAt:"",seenByTD:true}]; persist(); }
+    if(!db.coachTodos){ db.coachTodos=[{id:"todo-s1",text:"Upload Week 1 attendance (sample task)",assigneeId:"coach-selena",done:false,doneAt:"",seenByTD:true},{id:"todo-s2",text:"Confirm U12 Girls food, ref and POTM roster for the next 4 weeks (sample task)",assigneeId:"coach-david",done:false,doneAt:"",seenByTD:true}]; persist(); }
     var me=currentCoach()||{}, td=isTD();
     var items=td?db.coachTodos:db.coachTodos.filter(function(t){ return t.assigneeId===me.id; });
     var open=items.filter(function(t){ return !t.done; }).length;
@@ -409,36 +562,85 @@
       alertHtml+'<ul class="todo-list">'+rows+"</ul>"+add+"</details>";
   }
   function viewDuties(){
+    if(isDaveTeam()) return viewDaveDuties();
     var players=teamPlayers();
-    db.duties=db.duties||[]; db.teamCaptains=db.teamCaptains||{};
+    db.duties=db.duties||[]; db.teamCaptains=db.teamCaptains||{}; db.potmMonths=db.potmMonths||[];
     var weeks=dutyWeeks();
     if(players.length && !db.duties.some(function(x){ return x.teamId===teamId(); })) dutyAutofill(false);
     var tc=db.teamCaptains[teamId()]||{captainId:"",viceId:""};
     function pOpts(sel){ return '<option value="">—</option>'+players.map(function(p){ return '<option value="'+p.id+'"'+(p.id===sel?" selected":"")+">"+esc(p.name)+"</option>"; }).join(""); }
-    var counts={}; players.forEach(function(p){ counts[p.id]={c:0,f:0}; });
+    var counts={}; players.forEach(function(p){ counts[p.id]={c:0,f:0,food:0,ref:0,potm:0}; });
     var rows=weeks.map(function(w){
-      var r=dutyFor(w)||{captainId:"",fruitId:"",notes:""};
+      var fx=fixtureForWeek(w);
+      var r=dutyFor(w)||{captainId:"",fruitId:"",foodId:"",refId:"",potmId:"",opponent:"",homeAway:"",venue:"",notes:""};
+      if(!r.opponent && fx) r.opponent=fx.opponent||"";
+      if(!r.homeAway && fx) r.homeAway=fx.homeAway||"";
+      if(!r.venue && fx) r.venue=fx.venue||"";
       if(counts[r.captainId]) counts[r.captainId].c++;
       if(counts[r.fruitId]) counts[r.fruitId].f++;
+      if(counts[r.foodId]) counts[r.foodId].food++;
+      if(counts[r.refId]) counts[r.refId].ref++;
+      if(counts[r.potmId]) counts[r.potmId].potm++;
       return "<tr><td>"+fmtDate(w)+"</td>"+
+        '<td><input data-act="duty" data-week="'+w+'" data-k="opponent" value="'+esc(r.opponent||"")+'" placeholder="Sample opponent"></td>'+
+        '<td><select data-act="duty" data-week="'+w+'" data-k="homeAway"><option value=""></option><option value="Home"'+(r.homeAway==="Home"?" selected":"")+">Home</option><option value=\"Away\""+(r.homeAway==="Away"?" selected":"")+">Away</option></select></td>"+
         '<td><select data-act="duty" data-week="'+w+'" data-k="captainId">'+pOpts(r.captainId)+"</select></td>"+
-        '<td><select data-act="duty" data-week="'+w+'" data-k="fruitId">'+pOpts(r.fruitId)+"</select></td>"+
-        '<td><input data-act="duty" data-week="'+w+'" data-k="notes" value="'+esc(r.notes||"")+'" placeholder="e.g. oranges, cut into quarters"></td></tr>';
+        '<td><select data-act="duty" data-week="'+w+'" data-k="foodId">'+pOpts(r.foodId||r.fruitId)+"</select></td>"+
+        '<td><select data-act="duty" data-week="'+w+'" data-k="refId">'+pOpts(r.refId)+"</select></td>"+
+        '<td><select data-act="duty" data-week="'+w+'" data-k="potmId">'+pOpts(r.potmId)+"</select></td>"+
+        '<td><input data-act="duty" data-week="'+w+'" data-k="notes" value="'+esc(r.notes||"")+'" placeholder="e.g. fruit, arrive early"></td></tr>';
     }).join("");
-    var share=players.map(function(p){ return "<tr><td>"+esc(p.name)+"</td><td>"+counts[p.id].c+"</td><td>"+counts[p.id].f+"</td></tr>"; }).join("");
-    return pageHead("Captain & Fruit Roster","Season captain, weekly match captain and who brings fruit. Sample players only.",
+    var share=players.map(function(p){ var c=counts[p.id]; return "<tr><td>"+esc(p.name)+"</td><td>"+esc(familyLabel(p))+"</td><td>"+c.c+"</td><td>"+c.food+"</td><td>"+c.ref+"</td><td>"+c.potm+"</td></tr>"; }).join("");
+    var months=(db.potmMonths||[]).filter(function(x){ return x.teamId===teamId(); }).sort(function(a,b){ return String(a.month).localeCompare(String(b.month)); });
+    var monthRows=months.map(function(m){
+      var pl=playerById(m.playerId);
+      return "<tr><td>"+esc(m.month)+"</td><td>"+esc(pl?pl.name:"—")+"</td><td>"+esc(m.note||"")+"</td></tr>";
+    }).join("");
+    var daveNote = teamId()==="t-u12g" ? '<p class="note">This tab follows the way David Crisp organises match days in his <strong>Food, Ref, POTM and Parents Roles</strong> spreadsheet. The U12 Girls duty grid is in the password-protected team book.</p>' : '<p class="note">Showing the parent-role roster for <strong>'+esc(team().name)+'</strong>. Food, referee, Player of the Match (POTM) and captain rotate through the sample families.</p>';
+    return pageHead("Food, Ref, POTM &amp; Parent Roles","Match-day parent duties: food, referee, Player of the Match, and captains. Sample names only.",
       '<button class="btn btn-small" data-act="duty-autofill">Auto-fill rotation</button>'+
       '<button class="btn btn-outline btn-small" data-act="duty-clear">Clear roster</button>')+
-      (function(){ var c=currentCoach()||{}; return '<p class="note">Showing the roster for <strong>'+esc(team().name)+'</strong>, managed by <strong>'+esc(c.name||"")+'</strong>'+(c.role?" ("+esc(c.role)+")":"")+'. Each coach has a separate captain and fruit roster for their own team.'+(c.canViewAll?" As Technical Director, Ozzi can switch teams with the Team picker.":"")+"</p>"; })()+
+      daveNote+
+      (function(){ var c=currentCoach()||{}; return '<p class="help">Managed by <strong>'+esc(c.name||"")+'</strong>'+(c.role?" ("+esc(c.role)+")":"")+'. Each coach has a separate roster for their own team.'+(c.canViewAll?" As Technical Director, Ozzi can switch teams with the Team picker.":"")+"</p>"; })()+
       (players.length?"":"<p>No players in this team. Add players on the Roster tab first.</p>")+
       '<div class="card" style="margin-bottom:1rem"><h2>Team captain</h2><div class="grid-2">'+
       '<div class="field"><label>Season captain</label><select data-act="team-captain" data-k="captainId">'+pOpts(tc.captainId)+"</select></div>"+
       '<div class="field"><label>Vice-captain</label><select data-act="team-captain" data-k="viceId">'+pOpts(tc.viceId)+"</select></div></div></div>"+
-      '<h2>Weekly roster (match days)</h2>'+
-      '<div class="table-wrap"><table class="data"><thead><tr><th>Week of</th><th>Match captain</th><th>Bringing fruit</th><th>Notes</th></tr></thead><tbody>'+rows+"</tbody></table></div>"+
-      '<h2 style="margin-top:1.25rem">Fair share</h2><div class="table-wrap"><table class="data"><thead><tr><th>Player</th><th>Times captain</th><th>Times on fruit</th></tr></thead><tbody>'+
-      (share||"<tr><td colspan='3'>No players.</td></tr>")+"</tbody></table></div>"+
-      '<p class="help">Auto-fill rotates through the squad so every player gets a turn. Change any week by hand. Prototype only, nothing is sent to families.</p>';
+      '<h2>Weekly match-day roster</h2>'+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Match captain</th><th>Food</th><th>Referee</th><th>POTM</th><th>Notes</th></tr></thead><tbody>'+rows+"</tbody></table></div>"+
+      '<h2 style="margin-top:1.25rem">Monthly POTM</h2>'+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Month</th><th>Player of the Month</th><th>Note</th></tr></thead><tbody>'+
+      (monthRows||"<tr><td colspan='3'>No monthly awards recorded yet. Weekly POTM is in the roster above.</td></tr>")+"</tbody></table></div>"+
+      '<h2 style="margin-top:1.25rem">Fair share</h2><div class="table-wrap"><table class="data"><thead><tr><th>Player</th><th>Family</th><th>Captain</th><th>Food</th><th>Ref</th><th>POTM</th></tr></thead><tbody>'+
+      (share||"<tr><td colspan='6'>No players.</td></tr>")+"</tbody></table></div>"+
+      '<p class="help">Auto-fill rotates food, referee, POTM and captain through the squad. Change any week by hand. Prototype only, nothing is sent to families.</p>';
+  }
+
+  function viewCampaign(){
+    if(isDaveTeam()) return viewDaveCampaign();
+    db.campaigns=db.campaigns||[];
+    var rec=(db.campaigns||[]).filter(function(c){ return c.teamId===teamId(); })[0];
+    var sampleNote='<p class="note">This view is modelled on David Crisp’s document <strong>Copy of 2026 Season by League Campaign</strong>. When his campaign file is loaded, the League Campaign tab shows the real match-by-match diary with invented names.</p>';
+    if(!rec){
+      return pageHead("Season Campaign","Season plan by league")+
+        (teamId()==="t-u12g"?sampleNote:'<p class="help">No campaign plan has been added for this team yet.</p>')+
+        '<p>When a league campaign is added, it will show the season in phases: pre-season, opening rounds, mid-season and a closing or finals block.</p>';
+    }
+    var phases=(rec.phases||[]).map(function(ph){
+      return '<article class="card" style="margin-bottom:1rem"><h3>'+esc(ph.name)+'</h3>'+
+        '<p class="help">'+esc(ph.dates||"")+'</p>'+
+        '<p><strong>Focus:</strong> '+esc(ph.focus||"")+'</p>'+
+        '<p><strong>Sessions:</strong> '+esc(ph.sessions||"")+'</p>'+
+        (ph.notes?'<p>'+esc(ph.notes)+'</p>':'')+
+        "</article>";
+    }).join("");
+    return pageHead("Season Campaign", esc(rec.league||"League campaign"))+
+      (teamId()==="t-u12g"?sampleNote:"")+
+      '<div class="card" style="margin-bottom:1rem"><h2>'+esc(rec.title)+'</h2>'+
+      '<p class="help">Coach: '+esc(rec.coach||currentCoach().name||"")+" · "+esc(team().name)+"</p>"+
+      "<p>"+esc(rec.overview||"")+"</p></div>"+
+      "<h2>Campaign phases</h2>"+phases+
+      '<p class="help">Sample content only. Replace this with the club’s agreed season plan when the original document can be opened.</p>';
   }
 
   function currentCoach(){
@@ -622,7 +824,7 @@
 
   function viewAssessGrid(players, periods, shown){
     shown=shown||players;
-    if(!players.length) return "<p>No players in this team. Add players on the Roster tab, or sign in as a coach who has a sample squad (Selena for U9 Girls, David Crisp for the Under 14s).</p>";
+    if(!players.length) return "<p>No players in this team. Add players on the Roster tab, or sign in as a coach who has a sample squad (Selena for U9 Girls, David Crisp for U12 Girls).</p>";
     var tests=testsList();
     var maps={};
     periods.forEach(function(per){ maps[per.id]=rankMaps(per.id, players); });
@@ -1353,7 +1555,7 @@
   function viewReports(){
     var opts=['<option value="">— Choose a player —</option>'].concat(teamPlayers().map(function(p){ return '<option value="'+p.id+'">'+esc(p.name)+"</option>"; })).join("");
     return pageHead("Email reports","Preview a summary, then open it in your email program")+
-      '<div class="warn-note">“Send” opens a mailto: message to the player or parent address. Bulk send uses BCC, or you can send one at a time. Real automated sending needs a backend or an email service such as Resend, SendGrid or Microsoft 365.</div>'+
+      '<div class="warn-note">"Send" opens a mailto: message to the player or parent address. Bulk send uses BCC, or you can send one at a time. Real automated sending needs a backend or an email service such as Resend, SendGrid or Microsoft 365.</div>'+
       '<form id="report-form" class="card form">'+
       '<div class="field"><label>Player</label><select name="playerId">'+opts+"</select></div>"+
       '<div class="field"><label>Coach comment</label><textarea name="comment" placeholder="[Comment for the family]"></textarea></div>'+
@@ -1429,9 +1631,219 @@
       '<div class="sensitive-note" style="margin-top:1rem"><strong>Privacy.</strong> This prototype stores everything in localStorage in this browser. The players in a real program include minors. Production needs authentication, a hosted database, consent, and consideration of the Australian Privacy Act. Medical notes need tighter restriction and encryption. Do not put real personal data in this pack.</div>';
   }
 
-  function render(keepModal){
-    document.body.className="coach";
-    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, duties:viewDuties, training:viewTraining, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
+
+  function daveNote(){
+    return '<p class="note">Layout and patterns follow David Crisp’s 2026 U12 Girls Google files — the parent-role grid, the shared workbook, and the league campaign diary. This team book is only visible after login and is stored encrypted in this demo.</p>';
+  }
+  function tabList(){
+    var tabs = TABS.slice();
+    if(isDaveTeam()){
+      var i=0;
+      for(;i<tabs.length;i++){ if(tabs[i][0]==="campaign") break; }
+      tabs.splice(i+1, 0, ["winpct","Win %"], ["goals","Goals &amp; Assists"], ["subs","Subs &amp; Positions"]);
+    }
+    return tabs;
+  }
+  function davePlayer(id){
+    var p=playerById(id);
+    return p||{id:id,name:id};
+  }
+  function fmtShortDate(iso){
+    if(!iso) return "";
+    var p=String(iso).split("-");
+    if(p.length!==3) return esc(iso);
+    return esc(p[2]+"/"+p[1]);
+  }
+  function codesHtml(codes){
+    return (codes||[]).map(function(c){ return '<span class="role-code role-'+esc(c)+'">'+esc(c)+'</span>'; }).join(" ");
+  }
+
+  function viewDaveDuties(){
+    var d=daveData();
+    var matches=d.roleMatches||[];
+    var players=(d.players||[]).filter(function(p){ return p.onMatchGrid!==false; });
+    var legend=(d.roleLegend||[]).map(function(x){ return '<span class="role-code role-'+esc(x.code)+'">'+esc(x.code)+'</span> '+esc(x.label); }).join(" · ");
+    var dateRow="<tr><th class=\"sticky\">Date</th>"+matches.map(function(m){ return '<th class="'+(m.schoolHoliday?"holiday":"")+'">'+fmtShortDate(m.date)+"</th>"; }).join("")+"</tr>";
+    var oppRow="<tr><th class=\"sticky\">Opponent</th>"+matches.map(function(m){ return '<th class="'+(m.schoolHoliday?"holiday":"")+'">'+esc(m.opponent||"")+"</th>"; }).join("")+"</tr>";
+    var haRow="<tr><th class=\"sticky\">H / A / time</th>"+matches.map(function(m){ return '<th class="'+(m.schoolHoliday?"holiday":"")+'">'+esc(m.ha||"")+"</th>"; }).join("")+"</tr>";
+    var body=players.map(function(p){
+      var cells=matches.map(function(m){
+        var a=(m.assignments||[]).filter(function(x){ return x.playerId===p.id; })[0];
+        return '<td class="'+(m.schoolHoliday?"holiday":"")+'">'+(a?codesHtml(a.codes):"")+"</td>";
+      }).join("");
+      return '<tr><th class="sticky">'+esc(p.name)+' <span class="muted">#'+esc(String(p.squadNo||""))+'</span><br><span class="muted">C × '+(p.timesCaptain||0)+"</span></th>"+cells+"</tr>";
+    }).join("");
+    var refRow="<tr><th class=\"sticky\">Referee source</th>"+matches.map(function(m){ return '<td class="'+(m.schoolHoliday?"holiday":"")+'">'+esc(m.refSource||"")+"</td>"; }).join("")+"</tr>";
+    return pageHead("Food, Ref, POTM &amp; Parent Roles","Player-by-match duty grid: Food, Captain, Referee, Lines person and Video. Sample names only.")+
+      daveNote()+
+      '<p class="help">Codes: '+legend+'. Highlighted columns are school-holiday weeks. "Times captain" (C ×) is the season count from the sheet. The bottom row is who supplied the referee that week.</p>'+
+      '<div class="table-wrap sheet-wrap"><table class="data sheet-grid"><thead>'+dateRow+oppRow+haRow+"</thead><tbody>"+body+refRow+"</tbody></table></div>";
+  }
+
+  function viewDaveCampaign(){
+    var d=daveData();
+    var header=d.campaignHeader||{};
+    var stats=(header.lines||[]).map(function(line){ return '<li>'+esc(line)+"</li>"; }).join("");
+    var cards=(d.campaignMatches||[]).map(function(b){
+      function field(label,val){
+        if(!val) return "";
+        return '<div class="campaign-field"><dt>'+esc(label)+"</dt><dd>"+esc(val)+"</dd></div>";
+      }
+      return '<article class="campaign-card'+(b.afterReset?" is-reset":"")+'">'+
+        "<h3>"+esc(b.heading||"")+"</h3>"+
+        '<div class="campaign-meta">'+
+          field("Final score", b.score)+
+          field("Half time", b.halfTime)+
+          field("Goals", b.goals)+
+          field("Assists", b.assists)+
+          field("Captain", b.captain)+
+          field("Players of the match", b.potm)+
+          field("Ref", b.ref)+
+          field("Lines person", b.lines)+
+          field("Video", b.video)+
+          field("Time on pitch", b.timeOnPitch)+
+          field("Half-time fruit", b.fruit)+
+          field("Absences", b.absences)+
+          field("Injuries", b.injuries)+
+          field("Opposition coaches", b.oppCoaches)+
+        "</div>"+
+        (b.insights?field("Insights", b.insights):"")+
+        (b.highlights?field("Highlights", b.highlights):"")+
+        (b.lessons?field("Lessons", b.lessons):"")+
+      "</article>";
+    }).join("");
+    return pageHead("League Campaign","Match-by-match 2026 league diary, including phase totals and the after-reset rounds. Sample names only.")+
+      daveNote()+
+      '<div class="campaign-summary"><h2>Season totals</h2><ul>'+stats+"</ul></div>"+
+      cards;
+  }
+
+  function viewWinPct(){
+    var d=daveData();
+    if(!isDaveTeam()) return pageHead("Win %","Competition record")+'<p class="help">This view is set up for the U12 Girls.</p>';
+    var rows=(d.winPct||[]).map(function(w){
+      var cls=String(w.season).toLowerCase()==="career"?" class=\"is-total\"":"";
+      return "<tr"+cls+"><th>"+esc(w.season)+"</th><td>"+(w.winPct!=null?w.winPct+"%":"")+"</td><td>"+esc(String(w.played??""))+"</td><td>"+esc(String(w.won??""))+"</td><td>"+esc(String(w.drew??""))+"</td><td>"+esc(String(w.lost??""))+"</td><td>"+esc(String(w.goalsFor??""))+"</td><td>"+esc(String(w.goalsAgainst??""))+"</td><td>"+esc(String(w.goalDiff??""))+"</td><td>"+esc(String(w.cleanSheets??""))+"</td><td>"+esc(w.note||"")+"</td></tr>";
+    }).join("");
+    return pageHead("Win % — Competition Matches","Season and career record from the shared U12 workbook. Team totals only.")+
+      daveNote()+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Season</th><th>Win %</th><th>Played</th><th>Won</th><th>Drew</th><th>Lost</th><th>Goals for</th><th>Goals against</th><th>Goal diff</th><th>Clean sheets</th><th>Note</th></tr></thead><tbody>'+rows+"</tbody></table></div>";
+  }
+
+  function viewGoals(){
+    var d=daveData();
+    if(!isDaveTeam()) return pageHead("Goals &amp; Assists","")+'<p class="help">This view is set up for the U12 Girls.</p>';
+    var matches=(d.matchList||[]).filter(function(m){ return m.opponent && !/^CUR$/i.test(m.opponent) && !/BYE/i.test(m.opponent); });
+    var byId={};
+    (d.goals||[]).forEach(function(g){ byId[g.playerId]=g; });
+    var players=(d.players||[]).filter(function(p){ return byId[p.id]; });
+    players.sort(function(a,b){ return (byId[b.id].goalTotal||0)-(byId[a.id].goalTotal||0); });
+    var head="<tr><th class=\"sticky\">Player</th><th>G</th><th>A</th>"+matches.map(function(m){ return "<th>"+fmtShortDate(m.date)+"<br>"+esc(m.opponent)+"<br>"+esc(m.score||"")+"</th>"; }).join("")+"</tr>";
+    var body=players.map(function(p){
+      var g=byId[p.id];
+      var cells=matches.map(function(m){
+        var key=m.date+"|"+m.opponent;
+        // keys in data may have 2026 vs slight opponent typo — try date prefix
+        var gv=g.goals[key], av=g.assists[key];
+        if(gv==null && av==null){
+          Object.keys(g.goals||{}).forEach(function(k){ if(k.indexOf(m.date)===0) gv=g.goals[k]; });
+          Object.keys(g.assists||{}).forEach(function(k){ if(k.indexOf(m.date)===0) av=g.assists[k]; });
+        }
+        var bits=[];
+        if(gv) bits.push('<span class="role-code role-C">'+gv+"G</span>");
+        if(av) bits.push('<span class="role-code role-F">'+av+"A</span>");
+        return "<td>"+bits.join(" ")+"</td>";
+      }).join("");
+      return '<tr><th class="sticky">'+esc(p.name)+"</th><td><strong>"+g.goalTotal+"</strong></td><td>"+g.assistTotal+"</td>"+cells+"</tr>";
+    }).join("");
+    return pageHead("Goals &amp; Assists","Per-match goals (G) and assists (A) from the shared workbook, including friendlies and cup games. Sample names only.")+
+      daveNote()+
+      '<p class="help">A few score cells in the original sheet were stored as dates (for example 6-1 became 6 January). Those have been read back as scores. League reports on the Season Campaign tab are the match-day write-up if a total differs.</p>'+
+      '<div class="table-wrap sheet-wrap"><table class="data sheet-grid"><thead>'+head+"</thead><tbody>"+body+"</tbody></table></div>";
+  }
+
+  function viewSubs(){
+    var d=daveData();
+    if(!isDaveTeam()) return pageHead("Subs &amp; Positions","")+'<p class="help">This view is set up for the U12 Girls.</p>';
+    var bands=d.subsTimeBands||[];
+    var planRows=(d.subsPlan||[]).map(function(r){
+      var slots=(r.slots||[]).map(function(nm){ return "<td>"+esc(nm||"")+"</td>"; }).join("");
+      return "<tr><th class=\"sticky\">"+esc(r.position)+"</th>"+slots+"<td>"+esc(r.minutes||"")+"</td><td>"+esc(r.note||"")+"</td></tr>";
+    }).join("");
+    var posRows=(d.positions||[]).map(function(r){
+      var backs=(r.backups||[]).map(function(nm){ return "<td>"+esc(nm||"")+"</td>"; }).join("");
+      while((r.backups||[]).length<3 && false){}
+      return "<tr><th>"+esc(r.position)+"</th><td>"+esc(r.primary||"")+"</td>"+backs+"<td>"+esc(r.note||"")+"</td></tr>";
+    }).join("");
+    return pageHead("Subs &amp; Positions","A 30-minute-half rotation plan and a draft two-positions-each sheet. Sample names only.")+
+      daveNote()+
+      "<h2>Subs plan 2026</h2>"+
+      '<p class="help">Time on the pitch is planned in 10-minute buckets for a squad of 11. The original sheet labelled one flank "Ring Wing"; it is shown here as Right Wing.</p>'+
+      '<div class="table-wrap"><table class="data sheet-grid"><thead><tr><th class="sticky">Position</th>'+bands.map(function(b){ return "<th>"+esc(b)+"</th>"; }).join("")+"<th>Minutes</th><th>Note</th></tr></thead><tbody>"+planRows+"</tbody></table></div>"+
+      "<h2>Two positions each (draft)</h2>"+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Position</th><th>Primary</th><th>Backup 1</th><th>Backup 2</th><th>Backup 3</th><th>Coach note</th></tr></thead><tbody>'+posRows+'</tbody></table></div>';
+  }
+
+  function viewDaveTracking(){
+    var d=daveData();
+    var dates=d.trainingDates||[];
+    var byId={};
+    (d.training||[]).forEach(function(r){ byId[r.playerId]=r; });
+    var players=(d.players||[]).filter(function(p){ return byId[p.id]; });
+    var legend=(d.trainingLegend||[]).map(function(x){ return '<span class="att-pill att-'+esc(x.code)+'">'+esc(x.code)+"</span> "+esc(x.label); }).join(" · ");
+    var head="<tr><th class=\"sticky\">Player</th><th>2026</th><th>2026 %</th><th>Tot</th><th>Tot %</th><th>No</th><th>Miss</th>"+dates.map(function(dt){ return "<th>"+fmtShortDate(dt.date)+"</th>"; }).join("")+"</tr>";
+    var body=players.map(function(p){
+      var r=byId[p.id];
+      var marks={};
+      (r.marks||[]).forEach(function(m){ marks[m.date]=m.code; });
+      var cells=dates.map(function(dt){
+        var c=marks[dt.date]||"";
+        return '<td class="att-'+esc(c)+'">'+esc(c)+"</td>";
+      }).join("");
+      return '<tr><th class="sticky">'+esc(p.name)+"</th><td>"+esc(String(r.y2026??""))+"</td><td>"+esc(r.pct2026!=null?r.pct2026+"%":"")+"</td><td>"+esc(String(r.tot??""))+"</td><td>"+esc(r.pctTot!=null?r.pctTot+"%":"")+"</td><td>"+esc(String(r.no??""))+"</td><td>"+esc(String(r.miss??""))+"</td>"+cells+"</tr>";
+    }).join("");
+    return pageHead("Training Attendance","Session-by-session marks from the shared workbook, plus 2026 and all-season totals. Sample names only.")+
+      daveNote()+
+      '<p class="help">Codes: '+legend+'. The original sheet did not include a written legend; these labels are inferred from how the letters were used (Y present, A absent, S sick, I injured, N not available).</p>'+
+      '<div class="table-wrap sheet-wrap"><table class="data sheet-grid"><thead>'+head+"</thead><tbody>"+body+"</tbody></table></div>";
+  }
+
+  function viewDaveRosterExtra(base){
+    var d=daveData();
+    var players=teamPlayers();
+    var rows=players.map(function(p){
+      var g=p.guardian1||{};
+      var med=p.medicalNotes||"";
+      return "<tr><td><strong>"+esc(p.name)+'</strong><br><span class="muted">#'+esc(String(p.squadNo||""))+(p.onMatchGrid===false?" · not on match-day grid":"")+"</span></td>"+
+        "<td>"+esc(p.dob||"")+"</td>"+
+        "<td>"+esc(g.name||"")+(g.contact?"<br>Contact: "+esc(g.contact):"")+"</td>"+
+        "<td>"+esc(p.mobile||g.phone||"")+"<br>"+esc(p.email||g.email||"")+"</td>"+
+        "<td>"+esc(p.kitSize||"")+"</td>"+
+        "<td>"+esc(p.coming||"")+"</td>"+
+        "<td>"+esc(p.kitReceived||"")+"</td>"+
+        "<td>"+esc(p.kitNote||"")+(p.positionNote?"<br>"+esc(p.positionNote):"")+"</td>"+
+        "<td>"+esc(med)+"</td>"+
+        "<td>"+esc(String(p.timesCaptain||0))+"</td>"+
+        '<td><button class="btn btn-ghost btn-small" data-act="edit-player" data-id="'+p.id+'">Edit</button></td></tr>';
+    }).join("");
+    return pageHead("Roster", players.length+" sample players — squad, kit and family contacts")+
+      daveNote()+
+      '<p class="help">Contact details, dates of birth, kit notes and medical notes come from the U12 Girls team book and are only shown after login.</p>'+
+      '<div class="toolbar"><button class="btn btn-small" data-act="add-player">Add player</button></div>'+
+      '<div class="table-wrap"><table class="data"><thead><tr><th>Player</th><th>DOB</th><th>Parent / contact</th><th>Mobile / email</th><th>Kit size</th><th>Coming</th><th>Kit received</th><th>Kit / role note</th><th>Medical / notes</th><th>Times captain</th><th></th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="11">No players yet.</td></tr>')+"</tbody></table></div>";
+  }
+
+    function render(keepModal){
+    if(isDaveArea() && !daveUnlocked()){
+      document.body.className="coach theme-dark dave-locked";
+      document.getElementById("app").innerHTML=viewDaveLogin();
+      bind();
+      bindDaveLogin();
+      return;
+    }
+    document.body.className=document.body.classList.contains("theme-dark")||document.body.classList.contains("dave-locked")?"coach theme-dark":"coach";
+    var view={ roster:viewRoster, tracking:viewTracking, fees:viewFeesUniform, duties:viewDuties, campaign:viewCampaign, winpct:viewWinPct, goals:viewGoals, subs:viewSubs, training:viewTraining, assessment:viewAssessment, fitness:viewFitness, tasks:viewTasks, medical:viewMedical, matches:viewMatches, fixtures:viewFixtures, sessions:viewSessions, equipment:viewEquipment, comms:viewComms, reports:viewReports, settings:viewSettings }[state.tab]||viewRoster;
     document.getElementById("app").innerHTML=shell(view());
     bind();
   }
@@ -1463,6 +1875,9 @@
     if(e.target && e.target.id==="team-switch"){ db.currentTeamId=e.target.value; persist(); render(); return; }
     if(e.target && e.target.id==="coach-switch"){
       db.currentCoachId=e.target.value; applyCoachScope(); persist(); render(); return;
+    }
+    if(e.target && e.target.getAttribute && e.target.getAttribute("data-act")==="dave-logout"){
+      lockDave(); toast("Logged out of the U12 Girls team book."); render(); return;
     }
     if(e.target && e.target.id==="assess-period"){ state.assessPeriodId=e.target.value; render(); return; }
     if(e.target && e.target.id==="assess-player"){ state.assessPlayerId=e.target.value; render(); return; }
@@ -1506,8 +1921,8 @@
     var act=btn.getAttribute("data-act");
     var id=btn.getAttribute("data-id");
     if(act==="tab"){ state.tab=btn.getAttribute("data-tab"); state.modal=null; render(); }
-    else if(act==="duty-autofill"){ dutyAutofill(false); render(); toast("Rotation filled for the next 8 weeks."); }
-    else if(act==="duty-clear"){ if(confirm("Clear the captain and fruit roster for this team?")){ db.duties=(db.duties||[]).filter(function(x){ return x.teamId!==teamId(); }); db.duties.push({teamId:teamId(),week:"cleared",captainId:"",fruitId:"",notes:""}); persist(); render(); } }
+    else if(act==="duty-autofill"){ dutyAutofill(false); render(); toast("Parent-role rotation filled for this team’s match days."); }
+    else if(act==="duty-clear"){ if(confirm("Clear the food, ref, POTM and parent-role roster for this team?")){ db.duties=(db.duties||[]).filter(function(x){ return x.teamId!==teamId(); }); db.duties.push({teamId:teamId(),week:"cleared",captainId:"",fruitId:"",foodId:"",refId:"",potmId:"",notes:""}); persist(); render(); } }
     else if(act==="todo-add"){ if(!isTD()) return; var tx=document.getElementById("todo-new-text"), tw=document.getElementById("todo-new-who"); var txt=tx&&tx.value.trim(); if(!txt){ toast("Type a task first."); return; } db.coachTodos=db.coachTodos||[]; db.coachTodos.push({id:"todo-"+Date.now(), text:txt, assigneeId:tw?tw.value:"", done:false, doneAt:"", seenByTD:true}); persist(); state.todoOpen=true; render(); }
     else if(act==="todo-del"){ if(!isTD()) return; db.coachTodos=(db.coachTodos||[]).filter(function(x){ return x.id!==id; }); persist(); state.todoOpen=true; render(); }
     else if(act==="todo-dismiss"){ (db.coachTodos||[]).forEach(function(x){ if(x.done) x.seenByTD=true; }); persist(); state.todoOpen=true; render(); }
@@ -1631,7 +2046,7 @@
     else if(act==="add-met"){ db.metrics.push({id:HCFC.uid("m"),name:"New metric",unit:"",lowerIsBetter:false}); persist(); render(); }
     else if(act==="del-met"){ db.metrics=db.metrics.filter(function(m){ return m.id!==id; }); persist(); render(); }
     else if(act==="save-sizes"){ db.settings.uniformSizes=document.getElementById("sizes").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean); persist(); toast("Sizes saved."); render(); }
-    else if(act==="export-json") download("hcfc-coach-data.json", JSON.stringify(db,null,2), "application/json");
+    else if(act==="export-json") download("hcfc-coach-data.json", JSON.stringify((daveUnlocked()?db:HCFC.stripDaveU12(db)),null,2), "application/json");
     else if(act==="reset"){ if(confirm("Replace everything in this browser with the sample dataset?")){ db=HCFC.resetSample(); toast("Sample data restored."); render(); } }
     else if(act==="clear"){ if(confirm("Clear all data in this browser? This cannot be undone.")){ db=HCFC.clearAll(); toast("All data cleared."); render(); } }
   }
@@ -1702,5 +2117,6 @@
   }
 
   window.HCFC_APP={ render:render, get db(){ return db; }, set db(v){ db=v; }, state:state, teamPlayers:teamPlayers, attendanceFor:attendanceFor, buildReport:buildReport, changeInfo:changeInfo };
+  restoreDaveSession();
   render();
 })();

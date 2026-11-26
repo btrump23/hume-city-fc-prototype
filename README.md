@@ -83,8 +83,8 @@ Location: `coach/index.html` (self-contained; CSS and JS are also kept as source
 - Hidden from the public nav  
 - `<meta name="robots" content="noindex, nofollow">` and `robots.txt` Disallow for `/coach/`  
 - No sign-in gate. The dashboard opens straight onto sample data. If the browser cannot use localStorage, the sample set is kept in memory for that session.  
-- “Signed in as coach” selector (prototype scoping only, not real security): Selena sees U9 Girls, David Crisp sees the Under 14s, Ozzi (Technical Director, also coaches Senior Women) can view every team. Other sample coaches are placeholders.  
-- Team switcher: U9 Girls, Girls U8 - U18, Under 14s, U16 Girls, Senior Women, MiniRoo U8 - U12  
+- “Signed in as coach” selector (prototype scoping only): Selena sees U9 Girls, David Crisp sees the U12 Girls, Ozzi (Technical Director, also coaches Senior Women) can view every team. Other sample coaches are placeholders. David’s U12 Girls team book is behind a login; the team data is stored encrypted and is only readable after a correct login.  
+- Team switcher: U9 Girls, U12 Girls, Girls U8 - U18, Under 14s, U16 Girls, Senior Women, MiniRoo U8 - U12  
 - Tabs (usable on a phone): Roster, Tracking, Assessment, Fitness, Tasks, Medical, Matches, Fixtures, Sessions, Equipment, Comms, Reports, Settings  
 
 ### Features
@@ -94,7 +94,10 @@ Location: `coach/index.html` (self-contained; CSS and JS are also kept as source
 - Membership fees (Unpaid / Part paid / Paid, amount, date)  
 - Uniform order, collection and configurable size, with summary counts and filters  
 - Quarterly fitness tracker: configurable periods (default Previous plus Q1–Q4) and metrics, values per player per period, SVG sparkline, % change vs first and previous period (green = improvement, red = decline, using each metric’s “better” direction)  
-- Fitness tests & assessment: a 7-test fitness battery (sit-ups, star jumps, squats, over barrier, 20m sprint, beep test, plank) and 4 ball-skill tests (juggling, passing accuracy, dribbling, first touch). Enter results for the whole squad, carry forward a previous result if a player was injured, and auto-calculate squad rankings per test and overall across Previous / Q1 / Q2 / Q3 / Q4 (green ▲ improved, red ▼ dropped). Attendance % auto-fills from training and game-day records. Coaches add status, feedback and “even better” notes against the six report-card criteria. A printable, confidential report card matches the club’s layout. Fitness reports open as a mailto draft or a printable view only — nothing is sent automatically. Sample results are seeded for two periods (Interim and Mid Season) on the U9 Girls, Under 14s and Girls U8–U18 squads.  
+- Parents Roles (Food, Ref, POTM, Lines, Video): a player-by-match duty grid from David Crisp’s U12 Girls role sheet (F / C / R / L / V, times captain, referee source, school-holiday weeks). Shown only after login.
+- Season Campaign: the 2026 league campaign diary — phase totals, after-reset rounds, and match reports. Shown only after login.
+- Win %, Goals & Assists, Subs & Positions, and Training Attendance follow the tabs in his shared U12 workbook. Shown only after login.
+- Fitness tests & assessment: a 7-test fitness battery (sit-ups, star jumps, squats, over barrier, 20m sprint, beep test, plank) and 4 ball-skill tests (juggling, passing accuracy, dribbling, first touch). Enter results for the whole squad, carry forward a previous result if a player was injured, and auto-calculate squad rankings per test and overall across Previous / Q1 / Q2 / Q3 / Q4 (green ▲ improved, red ▼ dropped). Attendance % auto-fills from training and game-day records. Coaches add status, feedback and “even better” notes against the six report-card criteria. A printable, confidential report card matches the club’s layout. Fitness reports open as a mailto draft or a printable view only — nothing is sent automatically. Sample results are seeded for two periods (Interim and Mid Season) on the U9 Girls, U12 Girls, Under 14s and Girls U8–U18 squads.  
 - Email report: preview modal, mailto (BCC for bulk), copy, download HTML; option to add a communication log entry after send  
 - Injury/medical notes (date, type, description, Active / Recovering / Cleared, follow-up flag and date), team alert count and flagged filter, plus a sensitivity warning  
 - Match results and stats (P, W, D, L, GF, GA, GD, goals, assists, minutes, top scorers)  
@@ -160,7 +163,8 @@ Data stays in the browser that opened the file. It is not stored on a server.
 These appear only in the coach dashboard (not on the public pages):
 
 - **Ozzi (Technical Director)** — td@humecityfc.com — for concerns or feedback
-- **David Crisp** — Under 14s coach — email and phone are placeholders (`coach.u14s@example.com`)
+- **David Crisp** — U12 Girls coach — email and phone are placeholders (`coach.u12girls@example.com`)
+- **Sample Coach C** — Under 14s coach — email and phone are placeholders (`coach.u14s@example.com`)
 - **Selena** — Under 9 girls coach — email and phone are placeholders (`coach.u9girls@example.com`)
 - Club policies are on the club's Team App, under the Documents tab
 
